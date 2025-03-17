@@ -1,13 +1,14 @@
 {
   "name": "runpod-api-helper",
-  "version":"0.1.0",
+  "version": "0.1.0",
   "author": {
     "name": "Ludovic Anterieur",
     "email": "open.code@outlook.com",
     "url": "https://github.com/my-opencode"
   },
   "devDependencies": {
-    "@types/node": "^22.13.10"
+    "@types/node": "^22.13.10",
+    "typescript": "^5.8.2"
   },
   "license": "MIT"
 }
