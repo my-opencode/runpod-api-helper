@@ -164,15 +164,15 @@ function withError(message: string, error: any) {
   return `${message}\n${error instanceof Error ? error.message : String(error)}`;
 }
 
-export function optionsToString(options: any) {
+export function optionsToString(options: any): string {
   const segments: string[] = [];
   if (typeof options !== `object`) {
-    segments.push(String(options))
+    return String(options);
+  } else if (Array.isArray(options)) {
+    return `[${options.map(v => optionsToString(v)).join(`, `)}]`;
   } else {
     for (const key in options) {
-      if (Array.isArray(options[key])) {
-        segments.push(`${key}: [${options[key].map(v => optionsToString(v)).join(`, `)}]`);
-      } else if (typeof options[key] === `object`) {
+      if (typeof options[key] === `object`) {
         segments.push(`${key}: ${optionsToString(options[key])}`);
       } else if (typeof options[key] === `number`) {
         segments.push(`${key}: ${options[key]}`);
