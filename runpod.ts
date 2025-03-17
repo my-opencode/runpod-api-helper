@@ -69,10 +69,10 @@ export class RunpodApi {
   }
   */
 
-  endpoints = {
-    create: this.endpointsCreate,
-    list: this.endpointsList,
-  };
+  // endpoints = {
+  //   create: this.endpointsCreate,
+  //   list: this.endpointsList,
+  // };
 
   /**
    * Sends a request to create an on-demand pod.
@@ -136,13 +136,13 @@ export class RunpodApi {
     ) as Promise<ListPodResponse>;
   }
 
-  pods = {
-    podCreate: this.podCreate,
-    start: this.podStart,
-    stop: this.podStop,
-    get: this.podGet,
-    list: this.podList,
-  };
+  // pods = {
+  //   podCreate: this.podCreate,
+  //   start: this.podStart,
+  //   stop: this.podStop,
+  //   get: this.podGet,
+  //   list: this.podList,
+  // };
 
   /**
    * Sends a request to list gpu types
@@ -150,14 +150,14 @@ export class RunpodApi {
    */
   async gpuList() {
     return await this.runRunpodGraphqlQuery(
-      `query": "query GpuTypes { gpuTypes { id displayName memoryInGb } }`,
+      `query GpuTypes { gpuTypes { id displayName memoryInGb } }`,
       `list gpu types`
     ) as Promise<ListGpuResponse>;
   }
 
-  gpus = {
-    list: this.gpuList,
-  }
+  // gpus = {
+  //   list: this.gpuList,
+  // }
 }
 
 function withError(message: string, error: any) {
