@@ -1,4 +1,4 @@
-import { CreatePodResponse, Endpoint, GetPodResponse, ListEndpointsResponse, ListGpuResponse, ListPodResponse, Pod, RunpodApiConstructorOptions, StartPodResponse, StopPodResponse } from "./runpod.types";
+import { CreatePodResponse, Endpoint, GetPodResponse, GetUserResponse, ListEndpointsResponse, ListGpuResponse, ListPodResponse, Pod, RunpodApiConstructorOptions, StartPodResponse, StopPodResponse, TerminatePodResponse, User } from "./runpod.types";
 
 const jsonHeader = { "content-type": `application/json` };
 
@@ -108,9 +108,21 @@ export class RunpodApi {
    */
   async podStop(podId: string) {
     return await this.runRunpodGraphqlQuery(
-      `mutation { podStop(input: {podId: \"riixlu8oclhp\"}) { id desiredStatus } }`,
+      `mutation { podStop(input: {podId: \"${podId}\"}) { id desiredStatus } }`,
       `stop pod`
     ) as Promise<StopPodResponse>;
+  }
+
+  /**
+   * Sends a request to terminate an existing on-demand pod
+   * @param podId Id of the pod to terminate
+   * @returns {Promise<StopPodResponse>}
+   */
+  async podTerminate(podId: string) {
+    return await this.runRunpodGraphqlQuery(
+      `mutation { podTerminate(input: {podId: \"${podId}\"}) }`,
+      `stop pod`
+    ) as Promise<TerminatePodResponse>;
   }
 
   /**
@@ -120,7 +132,7 @@ export class RunpodApi {
    */
   async podGet(podId: string) {
     return await this.runRunpodGraphqlQuery(
-      `query": "query Pod { pod(input: {podId: \"ldl1dxirsim64n\"}) { id name runtime { uptimeInSeconds ports { ip isIpPublic privatePort publicPort type } gpus { id gpuUtilPercent memoryUtilPercent } container { cpuPercent memoryPercent } } } }`,
+      `query Pod { pod(input: {podId: \"${podId}\"}) { id name runtime { uptimeInSeconds ports { ip isIpPublic privatePort publicPort type } gpus { id gpuUtilPercent memoryUtilPercent } container { cpuPercent memoryPercent } } } }`,
       `get pod`
     ) as Promise<GetPodResponse>;
   }
@@ -158,6 +170,18 @@ export class RunpodApi {
   // gpus = {
   //   list: this.gpuList,
   // }
+
+
+  /**
+   * Sends request to list templates
+   * @returns {Promise<{data: {myself: Partial<User>}}>}
+   */
+  async templatesList() {
+    return await this.runRunpodGraphqlQuery(
+      `query myself { myself { podTemplates { advancedStart containerDiskInGb containerRegistryAuthId dockerArgs earned env { key value } id imageName isPublic isRunpod isServerless boundEndpointId name ports readme runtimeInMin startJupyter startScript startSsh volumeInGb volumeMountPath config category } } }`,
+      `list templates`
+    ) as Promise<{ data: { myself: Partial<User> } }>;
+  }
 }
 
 function withError(message: string, error: any) {

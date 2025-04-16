@@ -1,9 +1,15 @@
-import { before, beforeEach, suite, test } from "node:test";
+import { beforeEach, suite, test } from "node:test";
 import assert from "node:assert";
 import { optionsToString, RunpodApi } from "./runpod";
 import { readFileSync } from "node:fs";
 
+/**
+ * The API key needs write permissions on GraphQL
+ */
 const apiKey = readFileSync(`.env.api.key`, { encoding: `utf-8` });
+
+const testPodTemplateId = ``; // only checked if provided
+const testPodId = ``; // will be stopped and terminated if supplied.
 
 suite(`runpod`, () => {
   suite(`optionsToString`, () => {
@@ -85,4 +91,61 @@ suite(`runpod`, () => {
     //   console.log(response.data.gpuTypes);
     // });
   });
+  suite(`list templates`, () => {
+    let runpodApi: RunpodApi;
+    beforeEach(() => {
+      runpodApi = new RunpodApi({ apiKey });
+    });
+    test(`list templates direct method call`, async () => {
+      const response = await runpodApi.templatesList();
+      // console.log("response", JSON.stringify(response));
+      assert(!!response.data);
+      assert(!!response.data.myself);
+      assert(Array.isArray(response.data.myself.podTemplates));
+      assert(response.data.myself.podTemplates.length > 0);
+      if (testPodTemplateId)
+        console.log(response.data.myself.podTemplates.find(tpl => tpl.id === testPodTemplateId));
+    });
+  });
+
+  if (testPodId) {
+
+    suite(`get pod`, () => {
+      let runpodApi: RunpodApi;
+      beforeEach(() => {
+        runpodApi = new RunpodApi({ apiKey });
+      });
+      test(`list templates direct method call`, async () => {
+        const response = await runpodApi.podGet(testPodId);
+        // console.log("response", JSON.stringify(response));
+        assert(!!response.data);
+        assert(!!response.data.pod);
+        assert.strictEqual(response.data.pod.id, testPodId);
+      });
+    });
+    suite(`stop pod`, () => {
+      let runpodApi: RunpodApi;
+      beforeEach(() => {
+        runpodApi = new RunpodApi({ apiKey });
+      });
+      test(`list templates direct method call`, async () => {
+        const response = await runpodApi.podStop(testPodId);
+        // console.log("response", JSON.stringify(response));
+        assert(!!response.data);
+        assert(!!response.data.podStop);
+      });
+    });
+    suite(`terminate pod`, () => {
+      let runpodApi: RunpodApi;
+      beforeEach(() => {
+        runpodApi = new RunpodApi({ apiKey });
+      });
+      test(`list templates direct method call`, async () => {
+        const response = await runpodApi.podTerminate(testPodId);
+        // console.log("response", JSON.stringify(response));
+        assert(!!response.data);
+        assert.strictEqual(response.data.podTerminate, null);
+      });
+    });
+  }
 });
