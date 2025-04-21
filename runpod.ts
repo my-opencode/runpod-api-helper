@@ -1,4 +1,4 @@
-import { CreatePodResponse, Endpoint, GetPodResponse, GetUserResponse, ListEndpointsResponse, ListGpuResponse, ListPodResponse, Pod, RunpodApiConstructorOptions, StartPodResponse, StopPodResponse, TerminatePodResponse, User } from "./runpod.types";
+import { CreatePodResponse, Endpoint, GetPodResponse, GetUserResponse, GpuAvailabilityInput, GpuLowestPriceInput, GpuType, JsonRequestBody, ListCpuFlavorsResponse, ListEndpointsResponse, ListGpuExtendedResponse, ListGpuResponse, ListPodResponse, ListSecureCpuTypes, LowestPrice, Pod, PodBidResumeInput, PodFindAndDeployOnDemandInput, ResumePodResponse, RunpodApiConstructorOptions, SpecificsInput, StartPodResponse, StopPodResponse, TerminatePodResponse, User } from "./runpod.types";
 
 const jsonHeader = { "content-type": `application/json` };
 
@@ -8,16 +8,21 @@ export class RunpodApi {
     this.apiKey = options.apiKey;
   }
 
-  async runRunpodGraphqlQuery(query: string, actionDescription: string) {
+  async runRunpodGraphqlQuery(queryOrPayload: string | JsonRequestBody, actionDescription: string) {
+    const body = JSON.stringify(
+      typeof queryOrPayload === `string`
+        ? { query: queryOrPayload }
+        : queryOrPayload
+    );
+    console.log("graphql request body:", body);
+
     try {
       const response = await fetch(
         `https://api.runpod.io/graphql?api_key=${this.apiKey}`,
         {
           headers: jsonHeader,
           method: `POST`,
-          body: JSON.stringify(
-            { query }
-          ),
+          body,
         });
       const data = await response.json();
       return data;
@@ -79,11 +84,68 @@ export class RunpodApi {
    * @param options Pod options
    * @returns {Promise<CreatePodResponse>}
    */
-  async podCreate(options: Partial<Pod>) {
-    const inputText = optionsToString(options);
+  async podCreate(options: Partial<PodFindAndDeployOnDemandInput>) {
+    // const inputText = optionsToString(options, true);
     return await this.runRunpodGraphqlQuery(
-      `mutation { podFindAndDeployOnDemand( input: { cloudType: ALL, ${inputText} } ) { id imageName env machineId machine { podHostId } } }`,
+      // `mutation { podFindAndDeployOnDemand( input: ${inputText} ) { id imageName env machineId machine { podHostId } } }`,
+      `
+mutation {
+  podFindAndDeployOnDemand(
+    input: {
+      cloudType: SECURE
+      computeType: CPU
+      gpuCount: 0
+      containerDiskInGb: 40
+      minVcpuCount: 2
+      minMemoryInGb: 15
+      name: "ApiHelperTestPod"
+      imageName: "runpod/base:0.5.1-cpu"
+      dockerArgs: ""
+    }
+  ) {
+    id
+    imageName
+    env
+    machineId
+    machine {
+      podHostId
+      }
+  }
+}
+`.replaceAll(/[\s\n]+/g, ` `),
+      // gpuTypeId: "NVIDIA RTX A6000"
+      // `mutation { podFindAndDeployOnDemand( input: { computeType: CPU, cloudType: SECURE, dataCenterId: "eu-se-1", name: "ApiHelperTestPod", imageName: "runpod/base:0.5.1-cpu" } ) { id imageName env machineId machine { podHostId } } }`,
       `create pod`
+    ) as Promise<CreatePodResponse>;
+  }
+  async podDeployCpu(pod: Partial<PodFindAndDeployOnDemandInput>&Partial<SpecificsInput>) {
+    if(!pod.instanceId) {
+      pod.instanceId = "cpu3c-2-4";
+    } else if(pod.instanceId && pod.instanceId.slice(0,3) !== `cpu`) {
+      throw new Error(`Expecting a cpu instance`);
+    }
+    const payload: JsonRequestBody = {
+      operationName: "Mutation",
+      variables: {
+        input: {
+          cloudType: "SECURE",
+          containerDiskInGb: 20,
+          deployCost: 0.06,
+          // dataCenterId: "EU-RO-1",
+          // networkVolumeId: "poh305z8m2",
+          volumeKey: null,
+          startJupyter: true,
+          startSsh: true,
+          ports: "22/tcp",
+          templateId: "runpod-ubuntu",
+          ...pod,
+        }
+      },
+      "query": "mutation Mutation($input: deployCpuPodInput!) {\n  deployCpuPod(input: $input) {\n    id\n    imageName\n    env\n    machineId\n    machine {\n      podHostId\n      __typename\n    }\n    __typename\n  }\n}"
+    };
+    return await this.runRunpodGraphqlQuery(
+      payload,
+      `deploy cpu pod`
     ) as Promise<CreatePodResponse>;
   }
 
@@ -96,9 +158,21 @@ export class RunpodApi {
   async podStart(podId: string, options: Partial<Pod>) {
     const inputText = optionsToString({ podId, ...options });
     return await this.runRunpodGraphqlQuery(
-      `mutation { podResume( input: { ${inputText} } ) { id desiredStatus imageName env machineId machine { podHostId } } }`,
+      `mutation { podResume( input: ${inputText} ) { id desiredStatus imageName env machineId machine { podHostId } } }`,
       `start pod`
     ) as Promise<StartPodResponse>;
+  }
+
+  /**
+   * Sends a request to resume a stopped on-demand pod
+   * @param options
+   * @returns {Promise<StopPodResponse>}
+   */
+  async podResume(options: Partial<PodBidResumeInput>) {
+    return await this.runRunpodGraphqlQuery(
+      `mutation { podResume(input: ${optionsToString(options)}) { id desiredStatus } }`,
+      `resume pod`
+    ) as Promise<ResumePodResponse>;
   }
 
   /**
@@ -166,11 +240,119 @@ export class RunpodApi {
       `list gpu types`
     ) as Promise<ListGpuResponse>;
   }
+  async gpuExtendedList() {
+    const payload : JsonRequestBody = {
+      operationName:"GpuTypes",
+      variables:{},
+      query:"query GpuTypes {\n  countryCodes\n  dataCenters {\n    id\n    name\n    listed\n    globalNetwork\n    location\n    __typename\n  }\n  gpuTypes {\n    maxGpuCount\n    maxGpuCountCommunityCloud\n    maxGpuCountSecureCloud\n    minPodGpuCount\n    id\n    displayName\n    memoryInGb\n    secureCloud\n    communityCloud\n    manufacturer\n    __typename\n  }\n}"}
 
-  // gpus = {
-  //   list: this.gpuList,
-  // }
+      /*
+        id: string;
+        name: string;
+        location: string;
+        storage: DataCenterStorage;
+        storageSupport: boolean;
+        listed: boolean;
+        gpuAvailability: GpuAvailability[]
+        compliance: Compliance[];
+      */
+    return await this.runRunpodGraphqlQuery(
+      payload,
+      `list gpu extended`
+    ) as Promise<ListGpuExtendedResponse>;
+  }
 
+  async gpuCommunityTypeList(gpuTypeId: string, lowestPrice?: Partial<GpuLowestPriceInput>) {
+    const payload: JsonRequestBody = {
+      "operationName": "CommunityGpuTypes",
+      "variables": {
+        "gpuTypesInput": { "id": gpuTypeId },
+        "lowestPriceInput": {
+          "gpuCount": 1,
+          "minDisk": 0,
+          "minMemoryInGb": 8,
+          "minVcpuCount": 2,
+          "countryCode": null,
+          "minDownload": 400,
+          "minUpload": 400,
+          "supportPublicIp": false,
+          ...(lowestPrice ?? {}),
+          "secureCloud": false,
+        }
+      },
+      "query": "query CommunityGpuTypes($lowestPriceInput: GpuLowestPriceInput, $gpuTypesInput: GpuTypeFilter) {\n  gpuTypes(input: $gpuTypesInput) {\n    lowestPrice(input: $lowestPriceInput) {\n      minimumBidPrice\n      uninterruptablePrice\n      minVcpu\n      minMemory\n      stockStatus\n      maxUnreservedGpuCount\n      availableGpuCounts\n      __typename\n    }\n    id\n    displayName\n    memoryInGb\n    communityPrice\n    communitySpotPrice\n    __typename\n  }\n}"
+    };
+    return await this.runRunpodGraphqlQuery(
+      payload,
+      `list community gpu types`
+    ) as Promise<ListGpuResponse>;
+  }
+
+  async gpuSecureTypeList(gpuTypeId: string, lowestPrice?: Partial<GpuLowestPriceInput>) {
+    const payload: JsonRequestBody = {
+      "operationName": "SecureGpuTypes",
+      "variables": {
+        "gpuTypesInput": { "id": gpuTypeId },
+        "lowestPriceInput": {
+          "gpuCount": 1,
+          "minDisk": 0,
+          "minMemoryInGb": 8,
+          "minVcpuCount": 2,
+          "countryCode": null,
+          "minDownload": 400,
+          "minUpload": 400,
+          "supportPublicIp": false,
+          ...(lowestPrice ?? {}),
+          "secureCloud": true,
+        }
+      },
+      "query": "query SecureGpuTypes($gpuTypesInput: GpuTypeFilter, $lowestPriceInput: GpuLowestPriceInput) { gpuTypes(input: $gpuTypesInput) { lowestPrice(input: $lowestPriceInput) { minimumBidPrice uninterruptablePrice minVcpu minMemory stockStatus compliance maxUnreservedGpuCount availableGpuCounts } id displayName memoryInGb securePrice communityPrice oneMonthPrice oneWeekPrice threeMonthPrice sixMonthPrice secureSpotPrice } }"
+    };
+    return await this.runRunpodGraphqlQuery(
+      payload,
+      `list secure gpu types`
+    ) as Promise<ListGpuResponse>;
+  }
+
+  async cpuFlavorsList() {
+    const payload: JsonRequestBody = {
+      "operationName": "CpuFlavors",
+      "query": "query CpuFlavors { countryCodes dataCenters { id name listed } cpuFlavors { id groupId groupName displayName minVcpu maxVcpu ramMultiplier diskLimitPerVcpu } }"
+    };
+    return await this.runRunpodGraphqlQuery(
+      payload,
+      `list cpu flavors`
+    ) as Promise<ListCpuFlavorsResponse>;
+  }
+
+  async cpuSecureTypesList(cpuFlavorId: string, specifics?: SpecificsInput) {
+    const payload: JsonRequestBody = {
+      operationName: "SecureCpuTypes",
+      variables: {
+        cpuFlavorInput: { "id": cpuFlavorId },
+        specificsInput: {
+          dataCenterId: null,
+          instanceId: specifics?.instanceId ?? null,
+        }
+      },
+      query: "query SecureCpuTypes($cpuFlavorInput: CpuFlavorInput, $specificsInput: SpecificsInput) {\n  cpuFlavors(input: $cpuFlavorInput) {\n    specifics(input: $specificsInput) {\n      stockStatus\n      securePrice\n      slsPrice\n      __typename\n    }\n    __typename\n  }\n}"
+    };
+    return await this.runRunpodGraphqlQuery(
+      payload,
+      `list secure cpu names`
+    ) as Promise<ListSecureCpuTypes>;
+  }
+
+  async cpuNamesList() {
+    const payload: JsonRequestBody = {
+      "operationName": "getCpuNames",
+      "query": "query getCpuNames { cpuFlavors { id groupName displayName } }"
+    };
+    return await this.runRunpodGraphqlQuery(
+      payload,
+      `list cpu names`
+    ) as Promise<ListSecureCpuTypes>;
+  }
 
   /**
    * Sends request to list templates
@@ -188,18 +370,24 @@ function withError(message: string, error: any) {
   return `${message}\n${error instanceof Error ? error.message : String(error)}`;
 }
 
-export function optionsToString(options: any): string {
+export function optionsToString(options: any, noQuotes = false): string {
   const segments: string[] = [];
   if (typeof options !== `object`) {
     return String(options);
   } else if (Array.isArray(options)) {
-    return `[${options.map(v => optionsToString(v)).join(`, `)}]`;
+    return `[${options.map(v => optionsToString(v, noQuotes)).join(`, `)}]`;
   } else {
     for (const key in options) {
       if (typeof options[key] === `object`) {
-        segments.push(`${key}: ${optionsToString(options[key])}`);
+        segments.push(`${key}: ${optionsToString(options[key], noQuotes)}`);
       } else if (typeof options[key] === `number`) {
         segments.push(`${key}: ${options[key]}`);
+      } else if (typeof options[key] === `string`) {
+        segments.push(
+          !noQuotes
+            ? `${key}: ${JSON.stringify(options[key])}`
+            : `${key}: ${options[key]}`
+        );
       } else {
         segments.push(`${key}: "${options[key]}"`);
       }

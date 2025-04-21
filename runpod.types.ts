@@ -490,7 +490,7 @@ export interface PodFilter {
 }
 export interface PodFindAndDeployOnDemandInput {
   aiApiId: string;
-  cloudType: "SECURE",
+  cloudType: CloudTypeEnum;
   containerDiskInGb: number;
   countryCode: string;
   deployCost: number;
@@ -522,8 +522,8 @@ export interface PodFindAndDeployOnDemandInput {
   savingsPlan: SavingsPlanInput,
   cudaVersion: string;
   allowedCudaVersions: string[],
-  instanceIds: string[],
-  computeType: "CPU"
+  instanceIds: string[];
+  computeType: ComputeType;
 }
 export interface PodMachineInfo {
   id: string;
@@ -961,6 +961,11 @@ export interface CreatePodResponse {
     podFindAndDeployOnDemand: Partial<Omit<Pod, "machine">> & { machine: Partial<PodMachineInfo> };
   }
 }
+export interface ResumePodResponse {
+  data: {
+    podResume: Partial<Omit<Pod, "machine">> & { machine: Partial<PodMachineInfo> };
+  }
+}
 export interface StartPodResponse {
   data: {
     podResume: Partial<Omit<Pod, "machine">> & { machine: Partial<PodMachineInfo> };
@@ -993,11 +998,44 @@ export interface ListGpuResponse {
     gpuTypes: GpuType[];
   }
 }
+export type CountryCode = "AR" | "AT" | "BG" | "CA" | "CZ" | "ES" | "FR" | "IL" | "NL" | "PT" | "SE" | "SK" | "TT" | "US";
+export interface ListCpuFlavorsResponse {
+  data: {
+    countryCodes: CountryCode[],
+    dataCenters: DataCenter[],
+    cpuFlavors: CpuFlavor[],
+  }
+}
+export interface ListSecureCpuTypes {
+  data: {
+    cpuFlavors: CpuFlavor[]
+  }
+}
+export interface ListGpuExtendedResponse {
+  data: {
+    countryCodes: CountryCode[],
+    dataCenters: DataCenter[],
+    gpuTypes: GpuType[],
+  }
+}
+export interface DeployCpuPodOutput {
+  data: {
+    deployCpuPod: Partial<Pod>
+  }
+  // {"data":{"deployCpuPod":{"id":"mv94ietm9k8gdc","imageName":"runpod/base:0.5.1-cpu","env":["PUBLIC_KEY=ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC9cfCdaNGZPo+wL9iQxSLUASnamHp5aDapI6GUCJpvRhHhhI9IsxLWKw8ClyZRy8YqjcjLMzWgc0T/t2paMCCfTyTXyGwt1JwAUTo7/F1MF4P31hrAGDqvDgPpqXHukDdc9ijoJXjDVG+hrYl5EAIC6g5sv6eYdmLk84dnidPRC1sbIX2ui0Eb1W/SEss0UVDb7A0sNKrWdzbslufSL1rW1neYMcCz01aLGLgFiGbwcxdAjlFpBH4eBzfIbT/Y39phuBRfo5xUCnbYQiNZVpPp87TtZxWdGyGUAAv2EzrzKnbFTRVjXPlNt5CGC0dcdqRURsYJqdP0P59RHu1ivUvB RunPod-Key-Go\n\nssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0ivN65dcURqvZx5ivqiF6RveXEz9TKAf7qphBP4Phr1QKjg8VyJjJRxS2X3KrG/d+HJx/ZYDk0VpNEZinGCYhzStAovczdQ5heKOkPPdin8bvHHetMImQlCRXIbPwINdKcDc4i1xVg1l+fySWP10NWx/WXQEPu+kgZTLyuhqdfum+eeTWgCEuLrALi1ZDCS0juGOxHWehs4B87yYKFWaMNCYQmMmh+5YhztCRrOOUvy2vwqF3sdzkQZOvhUD4GafdSJb9iH1xFrarciDg+/KPgGyVQ1XHyLNOdIIqYMc+rpPf2+fSx4clZGWSd5L1pXp9LYCKVYIB+82Lh9HyfgHJ RunPod-Key-Go","JUPYTER_PASSWORD=lpwk4uvp8lc9nw3wc0h3"],"machineId":"mmadrui2hmum","machine":{"podHostId":"mv94ietm9k8gdc-64411746","__typename":"PodMachineInfo"},"__typename":"Pod"}}}
 
+}
 
 
 export interface GetUserResponse {
   data: {
     myself: User
   }
+}
+
+export type OperationName = "Mutation" | "Query" | "CommunityGpuTypes" | "SecureGpuTypes" | "CpuFlavors" | "getCpuNames" | "SecureCpuTypes" | "getPodTemplate" | "deployCpuPodInput" | "GpuTypes";
+export interface JsonRequestBody {
+  operationName: OperationName;
+  variables?: Record<string, any>;
+  query: string;
 }
