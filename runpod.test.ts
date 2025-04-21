@@ -8,7 +8,7 @@ import { PodFindAndDeployOnDemandInput, SpecificsInput } from "./runpod.types";
 /**
  * The API key needs write permissions on GraphQL
  */
-const apiKey = readFileSync(`/home/ludovic/Altavia/runpod-key.txt`, { encoding: `utf-8` });
+const apiKey = readFileSync(`.env.api.key`, { encoding: `utf-8` });
 
 const testPodTemplateId = ``; // only checked if provided
 const createPod = true;
