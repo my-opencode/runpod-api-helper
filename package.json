@@ -10,5 +10,8 @@
     "@types/node": "^22.13.10",
     "typescript": "^5.8.2"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "json-to-graphql-query": "^2.3.0"
+  }
 }

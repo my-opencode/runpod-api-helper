@@ -1,4 +1,5 @@
-import { CreatePodResponse, Endpoint, GetPodResponse, GetUserResponse, GpuAvailabilityInput, GpuLowestPriceInput, GpuType, JsonRequestBody, ListCpuFlavorsResponse, ListEndpointsResponse, ListGpuExtendedResponse, ListGpuResponse, ListPodResponse, ListSecureCpuTypes, LowestPrice, Pod, PodBidResumeInput, PodFindAndDeployOnDemandInput, ResumePodResponse, RunpodApiConstructorOptions, SpecificsInput, StartPodResponse, StopPodResponse, TerminatePodResponse, User } from "./runpod.types";
+import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
+import { CpuFlavor, CreatePodResponse, DataCenter, Discount, Endpoint, GetPodResponse, GetUserResponse, GpuAvailabilityInput, GpuLowestPriceInput, GpuType, JsonRequestBody, ListCpuFlavorsResponse, ListEndpointsResponse, ListGpuExtendedResponse, ListGpuResponse, ListPodResponse, ListSecureCpuTypes, LowestPrice, Pod, PodBidResumeInput, PodFindAndDeployOnDemandInput, ResumePodResponse, RunpodApiConstructorOptions, Specifics, SpecificsInput, StartPodResponse, StopPodResponse, TerminatePodResponse, User } from "./runpod.types";
 
 const jsonHeader = { "content-type": `application/json` };
 
@@ -37,7 +38,37 @@ export class RunpodApi {
    */
   async endpointsList() {
     return await this.runRunpodGraphqlQuery(
-      `query Endpoints { myself { endpoints { gpuIds id idleTimeout locations name networkVolumeId pods { desiredStatus } scalerType scalerValue templateId workersMax workersMin } serverlessDiscount { discountFactor type expirationDate } } }`,
+      jsonToGraphQLQuery({
+        query: {
+          __name: `Endpoints`,
+          myself: {
+            endpoints: {
+              ...{
+                gpuIds: true,
+                id: true,
+                idleTimeout: true,
+                locations: true,
+                name: true,
+                networkVolumeId: true,
+                scalerType: true,
+                scalerValue: true,
+                templateId: true,
+                workersMax: true,
+                workersMin: true,
+              } as Record<keyof Endpoint, boolean>,
+              pods: {
+                desiredStatus: true
+              } as Record<keyof Pod, boolean>,
+            },
+            serverlessDiscount: {
+              discountFactor: true,
+              type: true,
+              expirationDate: true,
+            } as Record<keyof Discount, boolean>
+          }
+        }
+      }),
+      // `query Endpoints { myself { endpoints { gpuIds id idleTimeout locations name networkVolumeId pods { desiredStatus } scalerType scalerValue templateId workersMax workersMin } serverlessDiscount { discountFactor type expirationDate } } }`,
       `list endpoints`
     ) as Promise<ListEndpointsResponse>;
   }
@@ -118,10 +149,11 @@ mutation {
       `create pod`
     ) as Promise<CreatePodResponse>;
   }
-  async podDeployCpu(pod: Partial<PodFindAndDeployOnDemandInput>&Partial<SpecificsInput>) {
-    if(!pod.instanceId) {
+
+  async podDeployCpu(pod: Partial<PodFindAndDeployOnDemandInput> & Partial<SpecificsInput>) {
+    if (!pod.instanceId) {
       pod.instanceId = "cpu3c-2-4";
-    } else if(pod.instanceId && pod.instanceId.slice(0,3) !== `cpu`) {
+    } else if (pod.instanceId && pod.instanceId.slice(0, 3) !== `cpu`) {
       throw new Error(`Expecting a cpu instance`);
     }
     const payload: JsonRequestBody = {
@@ -241,21 +273,22 @@ mutation {
     ) as Promise<ListGpuResponse>;
   }
   async gpuExtendedList() {
-    const payload : JsonRequestBody = {
-      operationName:"GpuTypes",
-      variables:{},
-      query:"query GpuTypes {\n  countryCodes\n  dataCenters {\n    id\n    name\n    listed\n    globalNetwork\n    location\n    __typename\n  }\n  gpuTypes {\n    maxGpuCount\n    maxGpuCountCommunityCloud\n    maxGpuCountSecureCloud\n    minPodGpuCount\n    id\n    displayName\n    memoryInGb\n    secureCloud\n    communityCloud\n    manufacturer\n    __typename\n  }\n}"}
+    const payload: JsonRequestBody = {
+      operationName: "GpuTypes",
+      variables: {},
+      query: "query GpuTypes {\n  countryCodes\n  dataCenters {\n    id\n    name\n    listed\n    globalNetwork\n    location\n    __typename\n  }\n  gpuTypes {\n    maxGpuCount\n    maxGpuCountCommunityCloud\n    maxGpuCountSecureCloud\n    minPodGpuCount\n    id\n    displayName\n    memoryInGb\n    secureCloud\n    communityCloud\n    manufacturer\n    __typename\n  }\n}"
+    }
 
-      /*
-        id: string;
-        name: string;
-        location: string;
-        storage: DataCenterStorage;
-        storageSupport: boolean;
-        listed: boolean;
-        gpuAvailability: GpuAvailability[]
-        compliance: Compliance[];
-      */
+    /*
+      id: string;
+      name: string;
+      location: string;
+      storage: DataCenterStorage;
+      storageSupport: boolean;
+      listed: boolean;
+      gpuAvailability: GpuAvailability[]
+      compliance: Compliance[];
+    */
     return await this.runRunpodGraphqlQuery(
       payload,
       `list gpu extended`
@@ -317,7 +350,28 @@ mutation {
   async cpuFlavorsList() {
     const payload: JsonRequestBody = {
       "operationName": "CpuFlavors",
-      "query": "query CpuFlavors { countryCodes dataCenters { id name listed } cpuFlavors { id groupId groupName displayName minVcpu maxVcpu ramMultiplier diskLimitPerVcpu } }"
+      "query": jsonToGraphQLQuery({
+        query: {
+          __name: `CpuFlavors`,
+          countryCodes: true,
+          dataCenters: {
+            id: true,
+            name: true,
+            listed: true,
+          } as Record<keyof DataCenter, boolean>,
+          cpuFlavors: {
+            id: true,
+            groupId: true,
+            groupName: true,
+            displayName: true,
+            minVcpu: true,
+            maxVcpu: true,
+            ramMultiplier: true,
+            diskLimitPerVcpu: true,
+          } as Record<keyof CpuFlavor, boolean>,
+        }
+      }),
+      //"query CpuFlavors { countryCodes dataCenters { id name listed } cpuFlavors { id groupId groupName displayName minVcpu maxVcpu ramMultiplier diskLimitPerVcpu } }"
     };
     return await this.runRunpodGraphqlQuery(
       payload,
@@ -335,7 +389,33 @@ mutation {
           instanceId: specifics?.instanceId ?? null,
         }
       },
-      query: "query SecureCpuTypes($cpuFlavorInput: CpuFlavorInput, $specificsInput: SpecificsInput) {\n  cpuFlavors(input: $cpuFlavorInput) {\n    specifics(input: $specificsInput) {\n      stockStatus\n      securePrice\n      slsPrice\n      __typename\n    }\n    __typename\n  }\n}"
+      query: jsonToGraphQLQuery({
+        query: {
+          __name: `SecureCpuTypes`,
+          __variables: {
+            cpuFlavorInput: `CpuFlavorInput`,
+            specificsInput: `SpecificsInput`,
+          },
+          cpuFlavors: {
+            __args: {
+              input: new VariableType(`cpuFlavorInput`)
+            },
+            specifics: {
+              __args: {
+                input: new VariableType(`specificsInput`),
+              },
+              ...{
+                stockStatus: true,
+                securePrice: true,
+                slsPrice: true,
+              } as Record<keyof Specifics, boolean>,
+              __typename: true,
+            },
+            __typename: true,
+          }
+        }
+      }),
+      // "query SecureCpuTypes($cpuFlavorInput: CpuFlavorInput, $specificsInput: SpecificsInput) {\n  cpuFlavors(input: $cpuFlavorInput) {\n    specifics(input: $specificsInput) {\n      stockStatus\n      securePrice\n      slsPrice\n      __typename\n    }\n    __typename\n  }\n}"
     };
     return await this.runRunpodGraphqlQuery(
       payload,
