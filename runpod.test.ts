@@ -171,7 +171,7 @@ suite(`runpod`, () => {
           }
           {
             const response = await runpodApi.cpuSecureTypesList("cpu3c");
-            console.log("gpu extended list", JSON.stringify(response));
+            console.log("cpu secure list", JSON.stringify(response));
             // cpuPodDeployOptions.dataCenterId = response.data.dataCenters.find(d => d.name === "EU-SE-1")?.id;
             // cpuPodDeployOptions.instanceId = response.data.cpuFlavors[0]
           }
