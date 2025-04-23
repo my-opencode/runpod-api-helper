@@ -118,32 +118,38 @@ export class RunpodApi {
   async podCreate(options: Partial<PodFindAndDeployOnDemandInput>) {
     // const inputText = optionsToString(options, true);
     return await this.runRunpodGraphqlQuery(
+      // https://github.com/runpod/runpod-python/issues/314
+      `mutation { deployCpuPod(input: { instanceId: "cpu3c-2-4", cloudType: SECURE, containerDiskInGb: 5, deployCost: 0.06, dataCenterId: null, networkVolumeId: null, startJupyter: true, startSsh: true, templateId: "runpod-ubuntu", volumeKey: null, ports: "22/tcp" }) { id imageName env machineId machine { podHostId } } }`,
       // `mutation { podFindAndDeployOnDemand( input: ${inputText} ) { id imageName env machineId machine { podHostId } } }`,
-      `
-mutation {
-  podFindAndDeployOnDemand(
-    input: {
-      cloudType: SECURE
-      computeType: CPU
-      gpuCount: 0
-      containerDiskInGb: 40
-      minVcpuCount: 2
-      minMemoryInGb: 15
-      name: "ApiHelperTestPod"
-      imageName: "runpod/base:0.5.1-cpu"
-      dockerArgs: ""
-    }
-  ) {
-    id
-    imageName
-    env
-    machineId
-    machine {
-      podHostId
-      }
-  }
-}
-`.replaceAll(/[\s\n]+/g, ` `),
+      // imageName: "runpod/base:0.5.1-cpu"
+      //       `
+      //     deployCpuPod(
+      //       input: {
+      //         instanceId: "cpu3c-2-4"
+      //         cloudType: SECURE
+      //         containerDiskInGb: 5
+      //         deployCost: 0.06
+      //         dataCenterId: null
+      //         networkVolumeId: null
+      //         startJupyter: true
+      //         startSsh: true
+      //         templateId: "runpod-ubuntu"
+      //         dockerArgs: "echo 'yolo' && exec /start.sh'"
+      //         volumeKey: null
+      //         ports: "22/tcp"
+      //         env: [{key: "GITHUB_TOKEN", value: "some token"}]
+      //       }
+      //     ) {
+      //       id
+      //       imageName
+      //       env
+      //       machineId
+      //       machine {
+      //         podHostId
+      //       }
+      //     }
+      //   }
+      // `/* .replaceAll(/[\s\n]+/g, ` `) */,
       // gpuTypeId: "NVIDIA RTX A6000"
       // `mutation { podFindAndDeployOnDemand( input: { computeType: CPU, cloudType: SECURE, dataCenterId: "eu-se-1", name: "ApiHelperTestPod", imageName: "runpod/base:0.5.1-cpu" } ) { id imageName env machineId machine { podHostId } } }`,
       `create pod`
