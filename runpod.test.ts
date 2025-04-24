@@ -53,105 +53,122 @@ suite(`runpod`, () => {
     });
   });
 
-    let runpodApi: RunpodApi;
-    beforeEach(() => {
-      runpodApi = new RunpodApi({ apiKey });
-    });
-    test(`list endpoints`, async () => {
-      const response = await runpodApi.endpointsList();
-      assert(!!response.data);
-      assert(!!response.data.myself);
-      assert(Array.isArray(response.data.myself.endpoints));
-      assert(response.data.myself.endpoints.length > 0);
-    });
+  let runpodApi: RunpodApi;
+  beforeEach(() => {
+    runpodApi = new RunpodApi({ apiKey });
+  });
 
-    test(`list gpus`, async () => {
-      const response = await runpodApi.gpuList();
-      assert(!!response.data);
-      assert(Array.isArray(response.data.gpuTypes));
-      assert(response.data.gpuTypes.length > 0);
-    });
+  // ENDPOINTS
+  test(`list endpoints`, async () => {
+    const response = await runpodApi.endpointsList();
+    assert(!!response.data);
+    assert(!!response.data.myself);
+    assert(Array.isArray(response.data.myself.endpoints));
+    assert(response.data.myself.endpoints.length > 0);
+  });
 
-    test(`list community gpus`, async () => {
-      const response = await runpodApi.gpuCommunityTypeList(
-        sampleGpuTypes[1],
-      );
-      assert(!!response.data);
-      assert(Array.isArray(response.data.gpuTypes));
-      assert(response.data.gpuTypes.length > 0);
-    });
+  // GPUs
+  test(`list gpus`, async () => {
+    const response = await runpodApi.gpuList();
+    assert(!!response.data);
+    assert(Array.isArray(response.data.gpuTypes));
+    assert(response.data.gpuTypes.length > 0);
+  });
 
-    test.skip(`list secure gpus`, async () => {
-      const response = await runpodApi.gpuSecureTypeList(sampleGpuTypes[0]);
-      assert(Array.isArray(response.data.gpuTypes));
-      assert(response.data.gpuTypes.length > 0);
-      // console.log(response.data.gpuTypes);
-    });
+  test(`list community gpus`, async () => {
+    const response = await runpodApi.gpuCommunityTypeList(
+      sampleGpuTypes[1],
+    );
+    assert(!!response.data);
+    assert(Array.isArray(response.data.gpuTypes));
+    assert(response.data.gpuTypes.length > 0);
+  });
 
-    test(`list templates`, async () => {
-      const response = await runpodApi.templatesList();
-      assert(!!response.data);
-      assert(!!response.data.myself);
-      assert(Array.isArray(response.data.myself.podTemplates));
-      assert(response.data.myself.podTemplates.length > 0);
-      if (testPodTemplateId)
-        console.log(response.data.myself.podTemplates.find(tpl => tpl.id === testPodTemplateId));
-    });
+  test.skip(`list secure gpus`, async () => {
+    const response = await runpodApi.gpuSecureTypeList(sampleGpuTypes[0]);
+    assert(Array.isArray(response.data.gpuTypes));
+    assert(response.data.gpuTypes.length > 0);
+    // console.log(response.data.gpuTypes);
+  });
 
-    test(`list cpu flavors`, async () => {
-      const response = await runpodApi.cpuFlavorsList();
-      assert(!!response.data);
+  test(`available gpu list`, async () => {
+    const response = await runpodApi.gpuAvailabilityList(DATA_CENTER_IDS.Euse1);
+    console.log(JSON.stringify(response));
+    assert(!!response.data);
 
-      assert(!!response.data.countryCodes);
-      assert(Array.isArray(response.data.countryCodes));
-      assert(response.data.countryCodes.length > 0);
+    assert(!!response.data.dataCenters);
+    assert(Array.isArray(response.data.dataCenters));
+    assert(response.data.dataCenters.length > 0);
 
-      assert(!!response.data.dataCenters);
-      assert(Array.isArray(response.data.dataCenters));
-      assert(response.data.dataCenters.length > 0);
+  });
 
-      assert(!!response.data.cpuFlavors);
-      assert(Array.isArray(response.data.cpuFlavors));
-      assert(response.data.cpuFlavors.length > 0);
-    });
+  test(`extended gpu list`, async () => {
+    const response = await runpodApi.gpuExtendedList();
+    assert(!!response.data);
 
-    test(`list secure cpus`, async () => {
-      const response = await runpodApi.cpuSecureTypesList(
-        sampleFlavorIds[0]
-      );
-      assert(!!response.data);
+    assert(!!response.data.countryCodes);
+    assert(Array.isArray(response.data.countryCodes));
+    assert(response.data.countryCodes.length > 0);
 
-      assert(!!response.data.cpuFlavors);
-      assert(Array.isArray(response.data.cpuFlavors));
-      assert(response.data.cpuFlavors.length > 0);
-    });
+    assert(!!response.data.dataCenters);
+    assert(Array.isArray(response.data.dataCenters));
+    assert(response.data.dataCenters.length > 0);
 
-    test(`list cpu names`, async () => {
-      const response = await runpodApi.cpuNamesList();
-      assert(!!response.data);
+    assert(!!response.data.gpuTypes);
+    assert(Array.isArray(response.data.gpuTypes));
+    assert(response.data.gpuTypes.length > 0);
+  });
 
-      assert(!!response.data.cpuFlavors);
-      assert(Array.isArray(response.data.cpuFlavors));
-      assert(response.data.cpuFlavors.length > 0);
-    });
+  // TEMPLATES
+  test(`list templates`, async () => {
+    const response = await runpodApi.templatesList();
+    assert(!!response.data);
+    assert(!!response.data.myself);
+    assert(Array.isArray(response.data.myself.podTemplates));
+    assert(response.data.myself.podTemplates.length > 0);
+    if (testPodTemplateId)
+      console.log(response.data.myself.podTemplates.find(tpl => tpl.id === testPodTemplateId));
+  });
 
-    test(`extended gpu list`, async () => {
-      const response = await runpodApi.gpuExtendedList();
-      assert(!!response.data);
+  // CPUs
+  test(`list cpu flavors`, async () => {
+    const response = await runpodApi.cpuFlavorsList();
+    assert(!!response.data);
 
-      assert(!!response.data.countryCodes);
-      assert(Array.isArray(response.data.countryCodes));
-      assert(response.data.countryCodes.length > 0);
+    assert(!!response.data.countryCodes);
+    assert(Array.isArray(response.data.countryCodes));
+    assert(response.data.countryCodes.length > 0);
 
-      assert(!!response.data.dataCenters);
-      assert(Array.isArray(response.data.dataCenters));
-      assert(response.data.dataCenters.length > 0);
+    assert(!!response.data.dataCenters);
+    assert(Array.isArray(response.data.dataCenters));
+    assert(response.data.dataCenters.length > 0);
 
-      assert(!!response.data.gpuTypes);
-      assert(Array.isArray(response.data.gpuTypes));
-      assert(response.data.gpuTypes.length > 0);
-    });
+    assert(!!response.data.cpuFlavors);
+    assert(Array.isArray(response.data.cpuFlavors));
+    assert(response.data.cpuFlavors.length > 0);
+  });
 
+  test(`list secure cpus`, async () => {
+    const response = await runpodApi.cpuSecureTypesList(
+      sampleFlavorIds[0]
+    );
+    assert(!!response.data);
+
+    assert(!!response.data.cpuFlavors);
+    assert(Array.isArray(response.data.cpuFlavors));
+    assert(response.data.cpuFlavors.length > 0);
+  });
+
+  test(`list cpu names`, async () => {
+    const response = await runpodApi.cpuNamesList();
+    assert(!!response.data);
+
+    assert(!!response.data.cpuFlavors);
+    assert(Array.isArray(response.data.cpuFlavors));
+    assert(response.data.cpuFlavors.length > 0);
+  });
+
+  // PODS
   suite(`pods`, () => {
     let runpodApi: RunpodApi;
     before(() => {
