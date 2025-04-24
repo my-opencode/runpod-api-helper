@@ -389,6 +389,44 @@ export class RunpodApi {
     ) as Promise<ListGpuResponse>;
   }
 
+  async gpuAvailabilityList(dataCenterId: string): Promise<{ data: { dataCenters: DataCenter[] } }> {
+    const payload: JsonRequestBody = {
+      "operationName": "Query",
+      "variables": {
+        dataCenterId
+      },
+      "query": jsonToGraphQLQuery({
+        query: {
+          // __name: `DataCenters`,
+          dataCenters: {
+            __args: {
+              where: { id: new VariableType("dataCenterId") }
+            },
+            id: true,
+            name: true,
+            location: true,
+            storageSupport: true,
+            listed: true,
+            gpuAvailability: {
+              available: true,
+              stockStatus: true,
+              gpuTypeId: true,
+              gpuType: true,
+              gpuTypeDisplayName: true,
+              displayName: true,
+              id: true,
+            }
+          }
+        }
+      })
+    };
+
+    return await this.runRunpodGraphqlQuery(
+      payload,
+      `list availabel gpu`
+    ) as Promise<{ data: { dataCenters: DataCenter[] } }>;
+  }
+
   async cpuFlavorsList() {
     const payload: JsonRequestBody = {
       "operationName": "CpuFlavors",
@@ -400,17 +438,26 @@ export class RunpodApi {
             id: true,
             name: true,
             listed: true,
+            // gpuAvailability: true,
+            // cpuAvailability: true,
           } as Record<keyof DataCenter, boolean>,
           cpuFlavors: {
-            id: true,
-            groupId: true,
-            groupName: true,
-            displayName: true,
-            minVcpu: true,
-            maxVcpu: true,
-            ramMultiplier: true,
-            diskLimitPerVcpu: true,
-          } as Record<keyof CpuFlavor, boolean>,
+            ...{
+              id: true,
+              groupId: true,
+              groupName: true,
+              displayName: true,
+              minVcpu: true,
+              maxVcpu: true,
+              ramMultiplier: true,
+              diskLimitPerVcpu: true,
+              // specifics: true,
+            } as Record<keyof CpuFlavor, boolean>,
+            // specifics: {
+            //   stockStatus: true,
+            //   securePrice: true,
+            // } as Record<keyof Specifics, boolean>,
+          }
         }
       }),
       //"query CpuFlavors { countryCodes dataCenters { id name listed } cpuFlavors { id groupId groupName displayName minVcpu maxVcpu ramMultiplier diskLimitPerVcpu } }"
