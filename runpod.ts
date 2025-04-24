@@ -106,54 +106,89 @@ export class RunpodApi {
   }
   */
 
-  // endpoints = {
-  //   create: this.endpointsCreate,
-  //   list: this.endpointsList,
-  // };
-
   /**
    * Sends a request to create an on-demand pod.
    * @param options Pod options
    * @returns {Promise<CreatePodResponse>}
    */
-  async podCreate(options: Partial<PodFindAndDeployOnDemandInput>) {
-    // const inputText = optionsToString(options, true);
+  async podDeployGpu(pod: Partial<PodFindAndDeployOnDemandInput>) {
+    if (!pod.gpuTypeId) {
+      throw new TypeError(`pod.gpuTypeId is required.`);
+    }
+    const input = {
+      ...pod,
+      cloudType: pod.cloudType || CLOUD_TYPES_SUPPORTED_ON_CREATE_POD.secure,
+      containerDiskInGb: pod.containerDiskInGb || 40,
+      // deployCost: pod.deployCost || 0.06,
+      dataCenterId: pod.dataCenterId || null,
+      networkVolumeId: pod.networkVolumeId || null,
+      startJupyter: pod.startJupyter ?? false,
+      startSsh: pod.startSsh ?? true,
+      dockerArgs: pod.dockerArgs || "",
+      volumeKey: pod.volumeKey ?? null,
+      ports: pod.ports ?? "8888/http,22/tcp",
+
+      cudaVersion: null,
+      computeType: COMPUTE_TYPE.gpu,
+      // containerRegistryAuthId: null,
+      countryCode: null,
+      // dockerEntrypoint: "",
+      // dockerStartCmd: "",
+      env: [{ key: "ENV_VAR", value: "value" }],
+      gpuCount: 1,
+      // templateId: "runpod-ubuntu", // Undocumented: cannot be changed.
+      // imageName: "", // Undocumented: not supported for CPU pods.
+      imageName: "runpod/pytorch:2.1.0-py3.10-cuda11.8.0-devel-ubuntu22.04",
+      // interruptible: false,
+      // locked: false,
+      // minDiskBandwidthMBps: 1,
+      // minDownloadMbps: 1,
+      // minRAMPerGPU: 8,
+      // minUploadMbps: 1,
+      // minVCPUPerGPU: 2,
+      // supportPublicIp: true,
+      // vcpuCount: 2,
+      // volumeInGb: 20,
+      // volumeMountPath: "/workspace"
+
+    } as Partial<PodFindAndDeployOnDemandInput>;
+
+    const inputEnums: Partial<Record<keyof PodFindAndDeployOnDemandInput, EnumType>> = {};
+
+    for (const enumProp of ["cloudType", "computeType", /* "gpuTypeId", "dataCenterId"*/] as (keyof PodFindAndDeployOnDemandInput)[])
+      if (input[enumProp])
+        inputEnums[enumProp] = new EnumType(String(input[enumProp])!);
+
+    const query = jsonToGraphQLQuery({
+      mutation: {
+        podFindAndDeployOnDemand: {
+          __args: {
+            //input: new VariableType(`input`)
+            input: { ...input, ...inputEnums }
+          },
+          ...{
+            id: true,
+            imageName: true,
+            env: true,
+            machineId: true,
+          } as Record<keyof Pod, boolean>,
+          machine: {
+            podHostId: true
+          } as Record<keyof PodMachineInfo, boolean>
+        }
+      }
+    });
+    console.log(query);
+
+    const payload: JsonRequestBody = {
+      operationName: "Mutation",
+      variables: { input },
+      query,
+    };
     return await this.runRunpodGraphqlQuery(
-      // https://github.com/runpod/runpod-python/issues/314
-      `mutation { deployCpuPod(input: { instanceId: "cpu3c-2-4", cloudType: SECURE, containerDiskInGb: 5, deployCost: 0.06, dataCenterId: null, networkVolumeId: null, startJupyter: true, startSsh: true, templateId: "runpod-ubuntu", volumeKey: null, ports: "22/tcp" }) { id imageName env machineId machine { podHostId } } }`,
-      // `mutation { podFindAndDeployOnDemand( input: ${inputText} ) { id imageName env machineId machine { podHostId } } }`,
-      // imageName: "runpod/base:0.5.1-cpu"
-      //       `
-      //     deployCpuPod(
-      //       input: {
-      //         instanceId: "cpu3c-2-4"
-      //         cloudType: SECURE
-      //         containerDiskInGb: 5
-      //         deployCost: 0.06
-      //         dataCenterId: null
-      //         networkVolumeId: null
-      //         startJupyter: true
-      //         startSsh: true
-      //         templateId: "runpod-ubuntu"
-      //         dockerArgs: "echo 'yolo' && exec /start.sh'"
-      //         volumeKey: null
-      //         ports: "22/tcp"
-      //         env: [{key: "GITHUB_TOKEN", value: "some token"}]
-      //       }
-      //     ) {
-      //       id
-      //       imageName
-      //       env
-      //       machineId
-      //       machine {
-      //         podHostId
-      //       }
-      //     }
-      //   }
-      // `/* .replaceAll(/[\s\n]+/g, ` `) */,
-      // gpuTypeId: "NVIDIA RTX A6000"
-      // `mutation { podFindAndDeployOnDemand( input: { computeType: CPU, cloudType: SECURE, dataCenterId: "eu-se-1", name: "ApiHelperTestPod", imageName: "runpod/base:0.5.1-cpu" } ) { id imageName env machineId machine { podHostId } } }`,
-      `create pod`
+      // payload,
+      query,
+      `deploy cpu pod`
     ) as Promise<CreatePodResponse>;
   }
 
