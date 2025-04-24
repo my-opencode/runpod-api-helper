@@ -296,14 +296,6 @@ export class RunpodApi {
     ) as Promise<ListPodResponse>;
   }
 
-  // pods = {
-  //   podCreate: this.podCreate,
-  //   start: this.podStart,
-  //   stop: this.podStop,
-  //   get: this.podGet,
-  //   list: this.podList,
-  // };
-
   /**
    * Sends a request to list gpu types
    * @returns {Promise<ListGpuResponse>}
