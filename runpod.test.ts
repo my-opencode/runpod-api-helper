@@ -9,7 +9,7 @@ import { CPU_FLAVOR_IDS, DATA_CENTER_IDS, GPU_TYPE_IDS } from "./runpod.constant
 /**
  * The API key needs write permissions on GraphQL
  */
-const apiKey = readFileSync(`.env.api.key`, { encoding: `utf-8` });
+const apiKey = readFileSync(`../../.env.api.key`, { encoding: `utf-8` });
 
 const testPodTemplateId = ``; // only checked if provided
 const createPod = true;
@@ -220,83 +220,55 @@ suite(`runpod`, () => {
           assert.strictEqual(response.data.podTerminate, null);
         });
       });
+      suite.skip(`gpu pod`, () => {
         let podId = "";
-        const cpuPodDeployOptions : Partial<PodFindAndDeployOnDemandInput>&Partial<SpecificsInput> = {
+        let deployResponse: CreatePodResponse;
 
-        };
         before(async () => {
           {
-            const response = await runpodApi.cpuFlavorsList();
-            console.log("cpu flavor list", JSON.stringify(response));
-            cpuPodDeployOptions.dataCenterId = response.data.dataCenters.find(d => d.name === "EU-SE-1")?.id;
+
           }
           {
-            const response = await runpodApi.cpuSecureTypesList("cpu3c");
-            console.log("cpu secure list", JSON.stringify(response));
-            // cpuPodDeployOptions.dataCenterId = response.data.dataCenters.find(d => d.name === "EU-SE-1")?.id;
-            // cpuPodDeployOptions.instanceId = response.data.cpuFlavors[0]
+            deployResponse = await runpodApi.podDeployGpu({
+              gpuTypeId: GPU_TYPE_IDS.nvidia.A40,
+              name: `runpod-api-helper-test-pod`,
+              dataCenterId: DATA_CENTER_IDS.Euse1,
+            });
+            console.log("response", JSON.stringify(deployResponse));
+            assert(!!deployResponse.data);
+            assert(!!deployResponse.data.podFindAndDeployOnDemand);
+            assert(!!deployResponse.data.podFindAndDeployOnDemand.id);
+            podId = deployResponse.data.podFindAndDeployOnDemand.id;
           }
         });
 
-      //   test(`deploy cpu pod`, async () => {
-      //     const response = await runpodApi.podCreate({});
-      //     console.log("response", JSON.stringify(response));
-      //     assert(!!response.data);
-      //     assert(!!response.data.podFindAndDeployOnDemand);
-      //     assert(!!response.data.podFindAndDeployOnDemand.id);
-      //     podId = response.data.podFindAndDeployOnDemand.id;
-      //   });
-      //   test(`get cpu pod`, async () => {
-      //     const response = await runpodApi.podGet(podId);
-      //     console.log("response", JSON.stringify(response));
-      //     assert(!!response.data);
-      //     assert(!!response.data.pod);
-      //     assert.strictEqual(response.data.pod.id, podId);
-      //   });
-      //   test(`stop cpu pod`, async () => {
-      //     const response = await runpodApi.podStop(podId);
-      //     console.log("response", JSON.stringify(response));
-      //     assert(!!response.data);
-      //     assert(!!response.data.podStop);
-      //   });
-      //   test(`terminate cpu pod`, async () => {
-      //     const response = await runpodApi.podTerminate(podId);
-      //     console.log("response", JSON.stringify(response));
-      //     assert(!!response.data);
-      //     assert.strictEqual(response.data.podTerminate, null);
-      //   });
-      // });
-      // suite(`deploy gpu pod`, () => {
-      //   let podId = "";
-      //   test(`deploy gpu pod`, async () => {
-      //     const response = await runpodApi.podCreate({});
-      //     console.log("response", JSON.stringify(response));
-      //     assert(!!response.data);
-      //     assert(!!response.data.podFindAndDeployOnDemand);
-      //     assert(!!response.data.podFindAndDeployOnDemand.id);
-      //     podId = response.data.podFindAndDeployOnDemand.id;
-      //   });
-      //   test(`get gpu pod`, async () => {
-      //     const response = await runpodApi.podGet(podId);
-      //     console.log("response", JSON.stringify(response));
-      //     assert(!!response.data);
-      //     assert(!!response.data.pod);
-      //     assert.strictEqual(response.data.pod.id, podId);
-      //   });
-      //   test(`stop gpu pod`, async () => {
-      //     const response = await runpodApi.podStop(podId);
-      //     console.log("response", JSON.stringify(response));
-      //     assert(!!response.data);
-      //     assert(!!response.data.podStop);
-      //   });
-      //   test(`terminate gpu pod`, async () => {
-      //     const response = await runpodApi.podTerminate(podId);
-      //     console.log("response", JSON.stringify(response));
-      //     assert(!!response.data);
-      //     assert.strictEqual(response.data.podTerminate, null);
-      //   });
-      // });
-      // suite(`deploy pod with volume`, () => {
+        test(`deploy gpu pod`, async () => {
+          assert(podId);
+        });
+        test(`get gpu pod`, async () => {
+          assert(podId);
+          const response = await runpodApi.podGet(podId);
+          console.log("response", JSON.stringify(response));
+          assert(!!response.data);
+          assert(!!response.data.pod);
+          assert.strictEqual(response.data.pod.id, podId);
+        });
+        test.skip(`stop gpu pod`, async () => {
+          assert(podId);
+          const response = await runpodApi.podStop(podId);
+          console.log("response", JSON.stringify(response));
+          assert(!!response.data);
+          assert(!!response.data.podStop);
+        });
+        test.skip(`terminate gpu pod`, async () => {
+          assert(podId);
+          const response = await runpodApi.podTerminate(podId);
+          console.log("response", JSON.stringify(response));
+          assert(!!response.data);
+          assert.strictEqual(response.data.podTerminate, null);
+        });
+        // });
+        // suite(`deploy pod with volume`, () => {
         // let podId = "";
         // test(`deploy pod with volume`, async () => {
         //   const response = await runpodApi.podCreate({});
