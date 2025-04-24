@@ -89,6 +89,32 @@ export interface DataCenter {
   gpuAvailability: GpuAvailability[]
   compliance: Compliance[];
 }
+export type DataCenterId =
+  "EU-RO-1" |
+  "CA-MTL-1" |
+  "EU-SE-1" |
+  "EUR-IS-1" |
+  "EUR-IS-2" |
+  "US-TX-3" |
+  "US-GA-2" |
+  "US-KS-2" |
+  "EU-CZ-1" |
+  "US-IL-1" |
+  "CA-MTL-3" |
+  "US-TX-4" |
+  "EU-NL-1" |
+  "US-TX-1" |
+  "OC-AU-1" |
+  "US-NC-1" |
+  "US-CA-2" |
+  "US-DE-1" |
+  "US-TX-2" |
+  "CA-MTL-2" |
+  "EU-FR-1" |
+  "EUR-NO-1" |
+  "US-KS-3" |
+  "EUR-IS-3" |
+  "US-KS-1";
 export interface DataCenterStorage {
   hostname: string;
   ips: string[];
@@ -176,7 +202,7 @@ export interface GpuAvailabilityInput {
   minDisk: number;
   minMemoryInGb: number;
   minVcpuCount: number;
-  secureCloud: true,
+  secureCloud: boolean,
   allowedCudaVersions: string[],
   includeAiApi: false
 }
@@ -185,14 +211,14 @@ export interface GpuLowestPriceInput {
   countryCode: string;
   dataCenterId: string;
   gpuCount: number;
-  includeAiApi: true,
+  includeAiApi: boolean,
   minDisk: number;
   minDownload: number;
   minMemoryInGb: number;
   minUpload: number;
   minVcpuCount: number;
-  secureCloud: false,
-  supportPublicIp: true,
+  secureCloud: boolean,
+  supportPublicIp: boolean,
   totalDisk: number;
   cudaVersion: string;
   allowedCudaVersions: string[],
@@ -212,7 +238,7 @@ export interface GpuType {
   maxGpuCountCommunityCloud: number;
   maxGpuCountSecureCloud: number;
   minPodGpuCount: number;
-  id: string;
+  id: GpuTypeId;
   displayName: string;
   manufacturer: string;
   memoryInGb: number;
@@ -232,6 +258,44 @@ export interface GpuTypeFilter {
   id: string;
   ids: string[]
 }
+export type GpuTypeId = "NVIDIA GeForce RTX 4090" |
+  "NVIDIA RTX A5000" |
+  "NVIDIA A40" |
+  "NVIDIA GeForce RTX 3090" |
+  "NVIDIA RTX A6000" |
+  "NVIDIA RTX A4000" |
+  "NVIDIA RTX A4500" |
+  "NVIDIA A100 80GB PCIe" |
+  "NVIDIA L4" |
+  "NVIDIA RTX 4000 Ada Generation" |
+  "NVIDIA A100-SXM4-80GB" |
+  "NVIDIA RTX 6000 Ada Generation" |
+  "NVIDIA H100 80GB HBM3" |
+  "NVIDIA L40S" |
+  "NVIDIA L40" |
+  "NVIDIA H100 PCIe" |
+  "NVIDIA RTX 2000 Ada Generation" |
+  "NVIDIA GeForce RTX 3080 Ti" |
+  "NVIDIA H100 NVL" |
+  "NVIDIA GeForce RTX 3080" |
+  "NVIDIA GeForce RTX 3070" |
+  "NVIDIA RTX A2000" |
+  "NVIDIA A30" |
+  "NVIDIA H200" |
+  "NVIDIA GeForce RTX 4080" |
+  "Tesla V100-SXM2-32GB" |
+  "NVIDIA GeForce RTX 4070 Ti" |
+  "AMD Instinct MI300X OAM" |
+  "Tesla V100-SXM2-16GB" |
+  "Tesla V100-PCIE-16GB" |
+  "NVIDIA RTX 5000 Ada Generation" |
+  "NVIDIA GeForce RTX 3090 Ti" |
+  "NVIDIA RTX 4000 SFF Ada Generation" |
+  "Tesla V100-FHHL-16GB" |
+  "NVIDIA GeForce RTX 4080 SUPER" |
+  "NVIDIA A100-SXM4-40GB" |
+  "NVIDIA GeForce RTX 5080" |
+  "NVIDIA GeForce RTX 5090";
 export interface Impersonation {
   auditLogs: AuditLogConnection,
   id: number;
@@ -239,7 +303,7 @@ export interface Impersonation {
   impersonateUserId: string;
   createdAt: string;
   expiresAt: string;
-  accepted: false,
+  accepted: boolean,
   acceptedAt: string;
 }
 export type Location = "CZ" | "FR" | "GB" | "NO" | "RO" | "US";
@@ -492,12 +556,12 @@ export interface PodFindAndDeployOnDemandInput {
   aiApiId: string;
   cloudType: CloudTypeEnum;
   containerDiskInGb: number;
-  countryCode: string;
+  countryCode: string | null;
   deployCost: number;
   dockerArgs: string;
   env: EnvironmentVariableInput[],
   gpuCount: number;
-  gpuTypeId: string;
+  gpuTypeId: GpuTypeId | null;
   gpuTypeIdList: string[],
   imageName: string;
   minDisk: number;
@@ -506,24 +570,27 @@ export interface PodFindAndDeployOnDemandInput {
   minUpload: number;
   minVcpuCount: number;
   name: string;
-  networkVolumeId: string;
+  networkVolumeId: string | null;
   port: number;
   ports: string;
-  startJupyter: false,
-  startSsh: true,
+  startJupyter: boolean,
+  startSsh: boolean,
   stopAfter: string;
-  supportPublicIp: true,
-  templateId: string;
+  supportPublicIp: boolean,
+  templateId: string | null;
   terminateAfter: string;
   volumeInGb: number;
-  volumeKey: string;
+  volumeKey: string | null;
   volumeMountPath: string;
-  dataCenterId: string;
+  dataCenterId: DataCenterId | null;
   savingsPlan: SavingsPlanInput,
-  cudaVersion: string;
+  cudaVersion: string | null;
   allowedCudaVersions: string[],
   instanceIds: string[];
   computeType: ComputeType;
+
+
+  containerRegistryAuthId: string | null;
 }
 export interface PodMachineInfo {
   id: string;
@@ -584,10 +651,10 @@ export interface PodRentInterruptableInput {
   networkVolumeId: string;
   port: number;
   ports: string;
-  startJupyter: true,
-  startSsh: true,
+  startJupyter: boolean,
+  startSsh: boolean,
   stopAfter: string;
-  supportPublicIp: false,
+  supportPublicIp: boolean,
   templateId: string;
   terminateAfter: string;
   volumeInGb: number;
@@ -600,7 +667,7 @@ export interface PodRentInterruptableInput {
 export interface PodResumeInput {
   podId: string;
   gpuCount: number;
-  syncMachine: true,
+  syncMachine: boolean,
   computeType: ComputeType;
 }
 export interface PodRuntime {
@@ -614,7 +681,6 @@ export interface PodRuntimeContainer {
   memoryPercent: number;
 }
 export interface PodRuntimeGpus {
-
   id: number;
   gpuUtilPercent: number;
   memoryUtilPercent: number;
@@ -733,7 +799,7 @@ export interface Team {
   membership: TeamMembership,
   members: TeamMembership[],
   invites: TeamInvite[],
-  isOwner: false,
+  isOwner: boolean,
   availableRoles: string[]
 }
 export interface TeamInvite {
@@ -1022,8 +1088,6 @@ export interface DeployCpuPodOutput {
   data: {
     deployCpuPod: Partial<Pod>
   }
-  // {"data":{"deployCpuPod":{"id":"mv94ietm9k8gdc","imageName":"runpod/base:0.5.1-cpu","env":["PUBLIC_KEY=ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC9cfCdaNGZPo+wL9iQxSLUASnamHp5aDapI6GUCJpvRhHhhI9IsxLWKw8ClyZRy8YqjcjLMzWgc0T/t2paMCCfTyTXyGwt1JwAUTo7/F1MF4P31hrAGDqvDgPpqXHukDdc9ijoJXjDVG+hrYl5EAIC6g5sv6eYdmLk84dnidPRC1sbIX2ui0Eb1W/SEss0UVDb7A0sNKrWdzbslufSL1rW1neYMcCz01aLGLgFiGbwcxdAjlFpBH4eBzfIbT/Y39phuBRfo5xUCnbYQiNZVpPp87TtZxWdGyGUAAv2EzrzKnbFTRVjXPlNt5CGC0dcdqRURsYJqdP0P59RHu1ivUvB RunPod-Key-Go\n\nssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC0ivN65dcURqvZx5ivqiF6RveXEz9TKAf7qphBP4Phr1QKjg8VyJjJRxS2X3KrG/d+HJx/ZYDk0VpNEZinGCYhzStAovczdQ5heKOkPPdin8bvHHetMImQlCRXIbPwINdKcDc4i1xVg1l+fySWP10NWx/WXQEPu+kgZTLyuhqdfum+eeTWgCEuLrALi1ZDCS0juGOxHWehs4B87yYKFWaMNCYQmMmh+5YhztCRrOOUvy2vwqF3sdzkQZOvhUD4GafdSJb9iH1xFrarciDg+/KPgGyVQ1XHyLNOdIIqYMc+rpPf2+fSx4clZGWSd5L1pXp9LYCKVYIB+82Lh9HyfgHJ RunPod-Key-Go","JUPYTER_PASSWORD=lpwk4uvp8lc9nw3wc0h3"],"machineId":"mmadrui2hmum","machine":{"podHostId":"mv94ietm9k8gdc-64411746","__typename":"PodMachineInfo"},"__typename":"Pod"}}}
-
 }
 
 
