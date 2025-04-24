@@ -3,7 +3,8 @@ import assert from "node:assert";
 import { optionsToString, RunpodApi } from "./runpod";
 import { readFileSync } from "node:fs";
 import { sampleFlavorIds, sampleGpuTypes, sampleSpecificsIds } from "./sampleValues";
-import { PodFindAndDeployOnDemandInput, SpecificsInput } from "./runpod.types";
+import { CreatePodResponse, DeployCpuPodOutput, PodFindAndDeployOnDemandInput, SpecificsInput } from "./runpod.types";
+import { CPU_FLAVOR_IDS, DATA_CENTER_IDS, GPU_TYPE_IDS } from "./runpod.constants";
 
 /**
  * The API key needs write permissions on GraphQL
@@ -158,7 +159,50 @@ suite(`runpod`, () => {
     });
 
     if (createPod) {
-      suite(`deploy cpu pod`, () => {
+      suite(`cpu pod`, () => {
+        let podId = "";
+        let deployResponse: DeployCpuPodOutput;
+
+        before(async () => {
+          {
+            deployResponse = await runpodApi.podDeployCpu({
+              instanceId: `cpu3c-2-4`,
+              name: `runpod-api-helper-test-pod`,
+            });
+            assert(!!deployResponse.data);
+            assert(!!deployResponse.data.deployCpuPod);
+            assert(!!deployResponse.data.deployCpuPod.id);
+            podId = deployResponse.data.deployCpuPod.id;
+          }
+        });
+
+        test(`deploy cpu pod`, async () => {
+          // console.log("response", JSON.stringify(response));
+          assert(podId);
+        });
+        test(`get cpu pod`, async () => {
+          assert(podId);
+          const response = await runpodApi.podGet(podId);
+          console.log("response", JSON.stringify(response));
+          assert(!!response.data);
+          assert(!!response.data.pod);
+          assert.strictEqual(response.data.pod.id, podId);
+        });
+        test(`stop cpu pod`, async () => {
+          assert(podId);
+          const response = await runpodApi.podStop(podId);
+          console.log("response", JSON.stringify(response));
+          assert(!!response.data);
+          assert(!!response.data.podStop);
+        });
+        test(`terminate cpu pod`, async () => {
+          assert(podId);
+          const response = await runpodApi.podTerminate(podId);
+          console.log("response", JSON.stringify(response));
+          assert(!!response.data);
+          assert.strictEqual(response.data.podTerminate, null);
+        });
+      });
         let podId = "";
         const cpuPodDeployOptions : Partial<PodFindAndDeployOnDemandInput>&Partial<SpecificsInput> = {
 

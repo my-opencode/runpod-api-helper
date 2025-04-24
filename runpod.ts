@@ -1,5 +1,6 @@
-import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
-import { CpuFlavor, CreatePodResponse, DataCenter, Discount, Endpoint, GetPodResponse, GetUserResponse, GpuAvailabilityInput, GpuLowestPriceInput, GpuType, JsonRequestBody, ListCpuFlavorsResponse, ListEndpointsResponse, ListGpuExtendedResponse, ListGpuResponse, ListPodResponse, ListSecureCpuTypes, LowestPrice, Pod, PodBidResumeInput, PodFindAndDeployOnDemandInput, ResumePodResponse, RunpodApiConstructorOptions, Specifics, SpecificsInput, StartPodResponse, StopPodResponse, TerminatePodResponse, User } from "./runpod.types";
+import { EnumType, jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
+import { CpuFlavor, CreatePodResponse, DataCenter, DeployCpuPodOutput, Discount, Endpoint, GetPodResponse, GpuLowestPriceInput, JsonRequestBody, ListCpuFlavorsResponse, ListEndpointsResponse, ListGpuExtendedResponse, ListGpuResponse, ListPodResponse, ListSecureCpuTypes, Pod, PodBidResumeInput, PodFindAndDeployOnDemandInput, PodMachineInfo, ResumePodResponse, RunpodApiConstructorOptions, Specifics, SpecificsInput, StartPodResponse, StopPodResponse, TerminatePodResponse, User } from "./runpod.types";
+import { CLOUD_TYPES, CLOUD_TYPES_SUPPORTED_ON_CREATE_POD, COMPUTE_TYPE, CPU_FLAVOR_IDS } from "./runpod.constants";
 
 const jsonHeader = { "content-type": `application/json` };
 
@@ -157,34 +158,69 @@ export class RunpodApi {
   }
 
   async podDeployCpu(pod: Partial<PodFindAndDeployOnDemandInput> & Partial<SpecificsInput>) {
+
+    // https://github.com/runpod/runpod-python/issues/314
+    // `mutation { deployCpuPod(input: { instanceId: "cpu3c-2-4", cloudType: SECURE, containerDiskInGb: 5, deployCost: 0.06, dataCenterId: null, networkVolumeId: null, startJupyter: true, startSsh: true, templateId: "runpod-ubuntu", volumeKey: null, ports: "22/tcp" }) { id imageName env machineId machine { podHostId } } }`,
+
     if (!pod.instanceId) {
-      pod.instanceId = "cpu3c-2-4";
+      pod.instanceId = CPU_FLAVOR_IDS.cpu3.compute + "-2-4";
     } else if (pod.instanceId && pod.instanceId.slice(0, 3) !== `cpu`) {
       throw new Error(`Expecting a cpu instance`);
     }
+
+    const input = {
+      ...pod,
+      instanceId: pod.instanceId,
+      cloudType: pod.cloudType || CLOUD_TYPES_SUPPORTED_ON_CREATE_POD.secure,
+      containerDiskInGb: pod.containerDiskInGb || 5,
+      deployCost: pod.deployCost || 0.06,
+      dataCenterId: pod.dataCenterId || null,
+      networkVolumeId: pod.networkVolumeId || null,
+      startJupyter: pod.startJupyter ?? false,
+      startSsh: pod.startSsh ?? true,
+      templateId: "runpod-ubuntu", // Undocumented: cannot be changed.
+      // imageName: "", // Undocumented: not supported for CPU pods.
+      dockerArgs: pod.dockerArgs || "",
+      volumeKey: pod.volumeKey ?? null,
+      ports: pod.ports ?? "22/tcp",
+    } as Partial<PodFindAndDeployOnDemandInput>;
+    const inputEnums = {
+      cloudType: new EnumType(input.cloudType!),
+    };
+
+    const query = jsonToGraphQLQuery({
+      mutation: {
+        deployCpuPod: {
+          __args: {
+            //input: new VariableType(`input`)
+            input: { ...input, ...inputEnums }
+          },
+          ...{
+            id: true,
+            imageName: true,
+            env: true,
+            machineId: true,
+          } as Record<keyof Pod, boolean>,
+          machine: {
+            podHostId: true
+          } as Record<keyof PodMachineInfo, boolean>
+        }
+      }
+    });
+    console.log(query);
+
     const payload: JsonRequestBody = {
       operationName: "Mutation",
-      variables: {
-        input: {
-          cloudType: "SECURE",
-          containerDiskInGb: 20,
-          deployCost: 0.06,
-          // dataCenterId: "EU-RO-1",
-          // networkVolumeId: "poh305z8m2",
-          volumeKey: null,
-          startJupyter: true,
-          startSsh: true,
-          ports: "22/tcp",
-          templateId: "runpod-ubuntu",
-          ...pod,
-        }
-      },
-      "query": "mutation Mutation($input: deployCpuPodInput!) {\n  deployCpuPod(input: $input) {\n    id\n    imageName\n    env\n    machineId\n    machine {\n      podHostId\n      __typename\n    }\n    __typename\n  }\n}"
+      variables: { input },
+      query,
+      // `mutation { deployCpuPod(input: { instanceId: "cpu3c-2-4", cloudType: SECURE, containerDiskInGb: 5, deployCost: 0.06, dataCenterId: null, networkVolumeId: null, startJupyter: true, startSsh: true, templateId: "runpod-ubuntu", volumeKey: null, ports: "22/tcp" }) { id imageName env machineId machine { podHostId } } }`,
+
     };
     return await this.runRunpodGraphqlQuery(
-      payload,
+      // payload,
+      query,
       `deploy cpu pod`
-    ) as Promise<CreatePodResponse>;
+    ) as Promise<DeployCpuPodOutput>;
   }
 
   /**
