@@ -1,8 +1,8 @@
 import { readFileSync } from "node:fs";
-import { CpuFlavor, DataCenter, GpuType } from "./runpod.types";
+import { CpuFlavor, DataCenter, GpuType } from "../lib/runpod.graphql.types";
 import assert from "node:assert";
 
-const apiKey = readFileSync(`../../.env.api.key`, { encoding: `utf-8` });
+const apiKey = readFileSync(`../.env.api.key`, { encoding: `utf-8` });
 (async function () {
   const response = await fetch(
     `https://api.runpod.io/graphql?api_key=${apiKey}`,
@@ -55,15 +55,4 @@ query {
   console.log(JSON.stringify(availablePricedGpus));
   console.log(`GPU to use on datacenter ${dataCenterId}, RAM > ${ramThreshold}\n${availablePricedGpus.map(g => `- ${g.id}, RAM: ${g.memoryInGb}, $: ${g.securePrice}, availability: ${g.stockStatus}`).join(`\n`)}`)
 
-  //       body: JSON.stringify({
-  //         query: `
-  // query {
-  //   dataCenters { id name listed gpuAvailability { id available stockStatus gpuTypeId gpuTypeDisplayName displayName } }
-  // }
-  // `}),
-  //   });
-  // const data = await response.json() as { data: { dataCenters: DataCenter[] } };
-  // console.log(JSON.stringify(data));
-  // assert(data.data)
-  // console.log(JSON.stringify(data.data.dataCenters.find(d => d.name === "EU-SE-1")));
 })();
