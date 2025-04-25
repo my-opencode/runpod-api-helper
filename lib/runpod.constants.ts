@@ -1,4 +1,4 @@
-import { ClientCreditChargeType, CloudTypeEnum, Compliance, ComputeType, DataCenterId, GpuTypeId } from "./runpod.types";
+import { ClientCreditChargeType, CloudTypeEnum, Compliance, ComputeType, CpuFlavorKnown, DataCenterId, GpuTypeId, ScalerType } from "./runpod.graphql.types";
 
 export const CLIENT_CREDIT_CHARGE_TYPE = {
   chargeServerless: "CHARGE_SERVERLESS" as ClientCreditChargeType,
@@ -35,14 +35,14 @@ export const COMPUTE_TYPE = {
 // source: https://rest.runpod.io/v1/docs#tag/pods/POST/pods
 export const CPU_FLAVOR_IDS = {
   cpu3: {
-    compute: "cpu3c",
-    general: "cpu3g",
-    memory: "cpu3m",
+    compute: "cpu3c" as CpuFlavorKnown,
+    general: "cpu3g" as CpuFlavorKnown,
+    memory: "cpu3m" as CpuFlavorKnown,
   },
   cpu5: {
-    compute: "cpu5c",
-    general: "cpu5g",
-    memory: "cpu5m",
+    compute: "cpu5c" as CpuFlavorKnown,
+    general: "cpu5g" as CpuFlavorKnown,
+    memory: "cpu5m" as CpuFlavorKnown,
   }
 }
 export const DATA_CENTER_IDS = {
@@ -117,4 +117,8 @@ export const GPU_TYPE_IDS = {
     "V100-PCIE-16GB": "Tesla V100-PCIE-16GB" as GpuTypeId,
     "V100-FHHL-16GB": "Tesla V100-FHHL-16GB" as GpuTypeId,
   }
+};
+export const SCALER_TYPE = {
+  queueDelay: "QUEUE_DELAY" as ScalerType,
+  requestCount: "REQUEST_COUNT" as ScalerType,
 };

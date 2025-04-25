@@ -51,10 +51,18 @@ export interface ContainerRegistryAuth {
   userId: string;
   registryAuth: string;
 }
+export type CountryCode = "AR" | "AT" | "BG" | "CA" | "CZ" | "ES" | "FR" | "IL" | "NL" | "PT" | "SE" | "SK" | "TT" | "US";
+export type CpuGroupKnown = "cpu3" | "cpu5";
+export type CpuFlavorKnown = "cpu3c" |
+  "cpu3g" |
+  "cpu3m" |
+  "cpu5c" |
+  "cpu5g" |
+  "cpu5m";
 export interface CpuFlavor {
-  id: string;
-  groupId: string;
-  groupName: string;
+  id: CpuFlavorKnown;
+  groupId: CpuGroupKnown;
+  groupName: CpuGroupKnown;
   displayName: string;
   minVcpu: number;
   maxVcpu: number;
@@ -154,7 +162,7 @@ export interface Endpoint {
   networkVolumeId: string;
   locations: null | "" | Location;
   pods: Pod[];
-  scalerType: string; //"QUEUE_DELAY";
+  scalerType: ScalerType;
   scalerValue: number;
   template: PodTemplate;
   templateId: string;
@@ -167,7 +175,7 @@ export interface Endpoint {
   gpuCount: number;
   env: EnvironmentVariable[];
   createdAt: string;
-  allowedCudaVersions: string;
+  allowedCudaVersions: string | string[];
   executionTimeoutMs: number;
   instanceIds: string[];
   computeType: ComputeType;
@@ -208,7 +216,7 @@ export interface GpuAvailabilityInput {
 }
 export type GpuId = "AMPERE_16" | "AMPERE_24" | "ADA_24" | "AMPERE_48" | "ADA_48_PRO" | "AMPERE_80" | "ADA_80_PRO";
 export interface GpuLowestPriceInput {
-  countryCode: string;
+  countryCode: CountryCode;
   dataCenterId: string;
   gpuCount: number;
   includeAiApi: boolean,
@@ -321,9 +329,12 @@ export interface LowestPrice {
   minDownload: number;
   minDisk: number;
   minUpload: number;
-  countryCode: string;
+  countryCode: CountryCode;
   supportPublicIp: boolean;
   compliance: Compliance[];
+
+  maxUnreservedGpuCount: number;
+  availableGpuCounts: number;
 }
 export interface MachineBalance {
   hostDiskEarnings: number;
@@ -556,7 +567,7 @@ export interface PodFindAndDeployOnDemandInput {
   aiApiId: string;
   cloudType: CloudTypeEnum;
   containerDiskInGb: number;
-  countryCode: string | null;
+  countryCode: CountryCode | null;
   deployCost: number;
   dockerArgs: string;
   env: EnvironmentVariableInput[],
@@ -634,9 +645,9 @@ export interface PodRegistry {
 }
 export interface PodRentInterruptableInput {
   bidPerGpu: number;
-  cloudType: "SECURE",
+  cloudType: CloudTypeEnum,
   containerDiskInGb: number;
-  countryCode: string;
+  countryCode: CountryCode;
   dockerArgs: string;
   env: EnvironmentVariableInput[],
   gpuCount: number;
@@ -758,6 +769,7 @@ export interface SavingsPlanInput {
   planLength: string;
   upfrontCost: number;
 }
+export type ScalerType = "QUEUE_DELAY" | "REQUEST_COUNT";
 export type Scope = "CSR_ADMIN" | "CSR_IMPERSONATION" | "CSR_READ" | "CSR_WRITE" | "TEAM_ADMIN" | "TEAM_DEV" | "TEAM_BILLING" | "TEAM_BASIC" | "HOST";
 export interface Secret {
   id: string;
@@ -922,7 +934,7 @@ export interface UserInformation {
   lastName: string;
   addressLine1: string;
   addressLine2: string;
-  countryCode: string;
+  countryCode: CountryCode;
   companyName: string;
   companyIdentification: string;
   taxIdentification: string;
@@ -996,110 +1008,4 @@ export interface WorkerStateInput {
 export interface backgroundPodTelemetryInput {
   machineId: string;
   gpuIndex: number;
-}
-
-
-export interface CreateEndpointResponse {
-  data: {
-    saveEndpoint: Partial<Endpoint>;
-  }
-}
-export interface ModifyEndointResponse {
-  data: {
-    saveEndpoint: Partial<Endpoint>;
-  }
-}
-export interface DeleteEndpointResponse {
-  data: {
-    deleteEndpoint: null;
-  }
-}
-export interface ListEndpointsResponse {
-  data: {
-    myself: {
-      endpoints: Partial<Endpoint>[],
-      serverlessDiscount: null | DiscountType;
-    }
-  }
-}
-export interface CreatePodResponse {
-  data: {
-    podFindAndDeployOnDemand: Partial<Omit<Pod, "machine">> & { machine: Partial<PodMachineInfo> };
-  }
-}
-export interface ResumePodResponse {
-  data: {
-    podResume: Partial<Omit<Pod, "machine">> & { machine: Partial<PodMachineInfo> };
-  }
-}
-export interface StartPodResponse {
-  data: {
-    podResume: Partial<Omit<Pod, "machine">> & { machine: Partial<PodMachineInfo> };
-  }
-}
-export interface StopPodResponse {
-  data: {
-    podStop: Pick<Pod, "id" | "desiredStatus"> & Partial<Pod>;
-  }
-}
-export interface TerminatePodResponse {
-  data: {
-    podTerminate: null;
-  }
-}
-export interface ListPodResponse {
-  data: {
-    myself: {
-      pods: (Pick<Pod, "id" | "name" | "runtime"> & Partial<Pod>)[];
-    }
-  }
-}
-export interface GetPodResponse {
-  data: {
-    pod: Pod;
-  }
-}
-export interface ListGpuResponse {
-  data: {
-    gpuTypes: GpuType[];
-  }
-}
-export type CountryCode = "AR" | "AT" | "BG" | "CA" | "CZ" | "ES" | "FR" | "IL" | "NL" | "PT" | "SE" | "SK" | "TT" | "US";
-export interface ListCpuFlavorsResponse {
-  data: {
-    countryCodes: CountryCode[],
-    dataCenters: DataCenter[],
-    cpuFlavors: CpuFlavor[],
-  }
-}
-export interface ListSecureCpuTypes {
-  data: {
-    cpuFlavors: CpuFlavor[]
-  }
-}
-export interface ListGpuExtendedResponse {
-  data: {
-    countryCodes: CountryCode[],
-    dataCenters: DataCenter[],
-    gpuTypes: GpuType[],
-  }
-}
-export interface DeployCpuPodOutput {
-  data: {
-    deployCpuPod: Partial<Pod>
-  }
-}
-
-
-export interface GetUserResponse {
-  data: {
-    myself: User
-  }
-}
-
-export type OperationName = "Mutation" | "Query" | "CommunityGpuTypes" | "SecureGpuTypes" | "CpuFlavors" | "getCpuNames" | "SecureCpuTypes" | "getPodTemplate" | "deployCpuPodInput" | "GpuTypes";
-export interface JsonRequestBody {
-  operationName: OperationName;
-  variables?: Record<string, any>;
-  query: string;
 }
