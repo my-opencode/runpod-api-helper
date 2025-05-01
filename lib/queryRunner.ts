@@ -10,7 +10,7 @@ export async function runRunpodGraphqlQuery(apiKey: string, queryOrPayload: stri
       ? { query: queryOrPayload }
       : queryOrPayload
   );
-  console.log("graphql request body:", body);
+  // console.log("graphql request body:", body);
 
   try {
     const response = await fetch(
