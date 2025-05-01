@@ -124,7 +124,7 @@ suite(`runpod`, () => {
   });
 
   test(`available gpu list`, async () => {
-    const response = await runpodApi.info.gpu.listAvailable(DATA_CENTER_IDS.Euse1);
+    const response = await runpodApi.info.gpu.listAvailable(DATA_CENTER_IDS.EuSe1);
     console.log(JSON.stringify(response));
     assert(!!response.data);
     assert(!!response.data.availableGpus);
@@ -221,12 +221,12 @@ suite(`runpod`, () => {
         let deployResponse: CreatePodResponse;
 
         before(async () => {
-          const availableGpus = (await runpodApi.info.gpu.listAvailable(DATA_CENTER_IDS.Euse1)).data.availableGpus;
+          const availableGpus = (await runpodApi.info.gpu.listAvailable(DATA_CENTER_IDS.EuSe1)).data.availableGpus;
           {
             deployResponse = await runpodApi.pods.createGpu({
               gpuTypeId: availableGpus[0].gpuTypeId as GpuTypeId,
               name: `runpod-api-helper-test-pod-gpu`,
-              dataCenterId: DATA_CENTER_IDS.Euse1,
+              dataCenterId: DATA_CENTER_IDS.EuSe1,
               containerDiskInGb: 50,
               deployCost: availableGpus[0].securePrice,
               imageName: "runpod/stable-diffusion:comfy-ui-6.0.0",
