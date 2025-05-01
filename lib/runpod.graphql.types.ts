@@ -600,7 +600,7 @@ export interface PodFindAndDeployOnDemandInput {
   instanceIds: string[];
   computeType: ComputeType;
 
-
+  globalNetwork: boolean;
   containerRegistryAuthId: string | null;
 }
 export interface PodMachineInfo {
