@@ -4,6 +4,7 @@ import { Endpoint } from "../runpod.graphql.types";
 import { applyDefaults } from "../utilities";
 import { CreateEndpointInput, JsonRequestBody } from "../runpod.request.type";
 import { COMPUTE_TYPE, GPU_TYPE_IDS, SCALER_TYPE } from "../runpod.constants";
+import { CreateEndpointResponse } from "../runpod.responses.type";
 
 /**
  * Sends request to create an endpoint
@@ -53,7 +54,7 @@ export async function createEndpoint(apiKey: string, input: Partial<CreateEndpoi
       }),
     } as JsonRequestBody,
     `create endpoint`
-  ) as Promise<Endpoint>;
+  ) as Promise<CreateEndpointResponse>;
 }
 
 //`mutation { saveEndpoint(input: { ${inputText} }) { gpuIds id idleTimeout locations name scalerType scalerValue templateId workersMax workersMin } }`,

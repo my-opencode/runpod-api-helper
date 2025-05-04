@@ -5,7 +5,7 @@ export interface CreateEndpointResponse {
     saveEndpoint: Partial<Endpoint>;
   }
 }
-export interface ModifyEndointResponse {
+export interface ModifyEndpointResponse {
   data: {
     saveEndpoint: Partial<Endpoint>;
   }

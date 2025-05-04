@@ -1,5 +1,6 @@
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
 import { runRunpodGraphqlQuery } from "../queryRunner";
+import { DeleteEndpointResponse } from "../runpod.responses.type";
 
 /* Dangerous to enable. Use at your own risk.  */
 const ENABLED = false;
@@ -26,6 +27,6 @@ export async function deleteEndpoint(apiKey: string, endpointId: string) {
       },
       // `mutation { deleteEndpoint(id: \"${endpointId}\") }`,
       `delete endpoint`
-    );
+    ) as Promise<DeleteEndpointResponse>;
   throw new Error(`Endpoint deletion is disabled by default.`);
 }

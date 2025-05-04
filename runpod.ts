@@ -3,7 +3,7 @@ import { runRunpodGraphqlQuery } from "./lib/queryRunner";
 import { listEndpoints } from "./lib/endpoints/list";
 import { createEndpoint } from "./lib/endpoints/create";
 import { CreateEndpointInput, JsonRequestBody } from "./lib/runpod.request.type";
-import { CreatePodResponse, DeployCpuPodResponse, GetPodResponse, ListEndpointsResponse, ListGpuResponse, ListPodResponse, ListCpuTypesResponse, StartPodResponse, StopPodResponse, TerminatePodResponse, ListDataCentersResponse, ListCountryCodesResponse, ListPodTemplatesResponse, ListAvailableGpusResponse } from "./lib/runpod.responses.type";
+import { CreatePodResponse, DeployCpuPodResponse, GetPodResponse, ListEndpointsResponse, ListGpuResponse, ListPodResponse, ListCpuTypesResponse, StartPodResponse, StopPodResponse, TerminatePodResponse, ListDataCentersResponse, ListCountryCodesResponse, ListPodTemplatesResponse, ListAvailableGpusResponse, CreateEndpointResponse, ModifyEndpointResponse, DeleteEndpointResponse } from "./lib/runpod.responses.type";
 import { modifyEndpoint } from "./lib/endpoints/modify";
 import { deleteEndpoint } from "./lib/endpoints/delete";
 import { createGpuPod } from "./lib/pods/createGpu";
@@ -26,9 +26,9 @@ export class RunpodApi {
   ) => Promise<any>;
   endpoints: {
     list(): Promise<ListEndpointsResponse>;
-    create(input: Partial<CreateEndpointInput>): Promise<Endpoint>;
-    modify(input: Partial<Endpoint>): Promise<Endpoint>;
-    delete(enpointId: string): Promise<null>;
+    create(input: Partial<CreateEndpointInput>): Promise<CreateEndpointResponse>;
+    modify(input: Partial<Endpoint>): Promise<ModifyEndpointResponse>;
+    delete(endpointId: string): Promise<DeleteEndpointResponse>;
   }
   pods: {
     list(): Promise<ListPodResponse>;

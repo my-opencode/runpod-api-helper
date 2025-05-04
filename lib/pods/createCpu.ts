@@ -1,4 +1,4 @@
-import { EnumType, jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
+import { EnumType, jsonToGraphQLQuery } from "json-to-graphql-query";
 import { CLOUD_TYPES_SUPPORTED_ON_CREATE_POD, CPU_FLAVOR_IDS } from "../runpod.constants";
 import { Pod, PodFindAndDeployOnDemandInput, PodMachineInfo, SpecificsInput } from "../runpod.graphql.types";
 import { JsonRequestBody } from "../runpod.request.type";

@@ -1,6 +1,7 @@
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
 import { runRunpodGraphqlQuery } from "../queryRunner";
 import { Endpoint } from "../runpod.graphql.types";
+import { ModifyEndpointResponse } from "../runpod.responses.type";
 
 /* Dangerous to enable. Use at your own risk.  */
 const ENABLED = false;
@@ -36,6 +37,6 @@ export async function modifyEndpoint(apiKey: string, input: Partial<Endpoint>) {
       },
       // `mutation { saveEndpoint(input: { ${inputText} }) { id gpuIds name templateId workersMax } }`,
       `modify endpoint`
-    );
+    ) as Promise<ModifyEndpointResponse>;
   throw new Error(`Endpoint modification is disabled by default.`);
 }
