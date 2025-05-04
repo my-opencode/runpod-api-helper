@@ -1,5 +1,5 @@
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
-import { runRunpodGraphqlQuery } from "../queryRunner";
+import { runRunpodGraphqlQuery } from "lib/queryRunner";
 import { JsonRequestBody } from "../runpod.request.type";
 import { AvailableGpu, ListAvailableGpusResponse, ListGpuResponse } from "../runpod.responses.type";
 import { DataCenter, DataCenterId, GpuAvailability, GpuLowestPriceInput, GpuType, GpuTypeId, LowestPrice } from "../runpod.graphql.types";

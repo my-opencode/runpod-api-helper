@@ -1,4 +1,4 @@
-import { runRunpodGraphqlQuery } from "../queryRunner";
+import { runRunpodGraphqlQuery } from "lib/queryRunner";
 
 export async function introspectSchema(apiKey: string) {
   return await runRunpodGraphqlQuery(

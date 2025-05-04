@@ -1,7 +1,7 @@
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
 import { JsonRequestBody } from "../runpod.request.type";
 import { CpuFlavor, Specifics, SpecificsInput } from "../runpod.graphql.types";
-import { runRunpodGraphqlQuery } from "../queryRunner";
+import { runRunpodGraphqlQuery } from "lib/queryRunner";
 import { ListCpuTypesResponse } from "../runpod.responses.type";
 
 export async function listCpuFlavors() {

@@ -1,5 +1,5 @@
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
-import { runRunpodGraphqlQuery } from "../queryRunner";
+import { runRunpodGraphqlQuery } from "lib/queryRunner";
 import { Endpoint } from "../runpod.graphql.types";
 import { applyDefaults } from "../utilities";
 import { CreateEndpointInput, JsonRequestBody } from "../runpod.request.type";

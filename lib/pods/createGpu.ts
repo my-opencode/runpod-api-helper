@@ -2,7 +2,7 @@ import { EnumType, jsonToGraphQLQuery } from "json-to-graphql-query";
 import { CLOUD_TYPES_SUPPORTED_ON_CREATE_POD, COMPUTE_TYPE } from "../runpod.constants";
 import { Pod, PodFindAndDeployOnDemandInput, PodMachineInfo } from "../runpod.graphql.types";
 import { JsonRequestBody } from "../runpod.request.type";
-import { runRunpodGraphqlQuery } from "../queryRunner";
+import { runRunpodGraphqlQuery } from "lib/queryRunner";
 import { CreatePodResponse } from "../runpod.responses.type";
 import { applyDefaults } from "../utilities";
 

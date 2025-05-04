@@ -18,7 +18,7 @@
     "json-to-graphql-query": "^2.3.0"
   },
   "scripts": {
-    "test": "npx tsx --test ./test/*.test.ts"
+    "test": "npx tsx --test --experimental-test-module-mocks ./test/*.test.ts"
   },
   "type": "module"
 }

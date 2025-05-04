@@ -7,11 +7,26 @@ import { CPU_FLAVOR_IDS, DATA_CENTER_IDS, GPU_TYPE_IDS } from "../lib/runpod.con
 import { optionsToString } from "../lib/utilities";
 import { CreatePodResponse, DeployCpuPodResponse } from "../lib/runpod.responses.type";
 import { GpuTypeId } from "../lib/runpod.graphql.types";
+import path from "node:path";
+
+let dirPath = ``;
+try {
+  dirPath = __dirname;
+  console.log(`commonJS`);
+} catch (error){
+  console.log(`Not commonJS`);
+}
+try {
+  dirPath = path.dirname(import.meta.filename);
+  console.log(`module`);
+} catch (error){
+  console.log(`Not module`);
+}
 
 /**
  * The API key needs write permissions on GraphQL
  */
-const apiKey = readFileSync(`../.env.api.key`, { encoding: `utf-8` });
+const apiKey = readFileSync(path.resolve(dirPath, `../.env.api.key`), { encoding: `utf-8` });
 
 const testPodTemplateId = ``; // only checked if provided
 const testVolumeId = ``;
@@ -114,7 +129,7 @@ suite(`runpod`, () => {
     assert(response.data.gpuTypes.length > 0);
   });
 
-  test.skip(`list secure gpus`, async () => {
+  test(`list secure gpus`, async () => {
     const response = await runpodApi.info.gpu.listSecure(
       GPU_TYPE_IDS.nvidia.A40
     );
@@ -170,7 +185,7 @@ suite(`runpod`, () => {
     });
 
     if (createPod) {
-      suite.skip(`cpu pod`, () => {
+      suite(`cpu pod`, () => {
         let podId = "";
         let deployResponse: DeployCpuPodResponse;
 
@@ -216,7 +231,7 @@ suite(`runpod`, () => {
           assert.strictEqual(response.data.podTerminate, null);
         });
       });
-      suite.skip(`gpu pod`, () => {
+      suite(`gpu pod`, () => {
         let podId = "";
         let deployResponse: CreatePodResponse;
 

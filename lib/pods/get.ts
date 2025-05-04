@@ -1,5 +1,5 @@
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
-import { runRunpodGraphqlQuery } from "../queryRunner";
+import { runRunpodGraphqlQuery } from "lib/queryRunner";
 import { JsonRequestBody } from "../runpod.request.type";
 import { GetPodResponse } from "../runpod.responses.type";
 import { Pod, PodRuntime, PodRuntimeContainer, PodRuntimeGpus, PodRuntimePorts } from "../runpod.graphql.types";
