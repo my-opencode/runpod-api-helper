@@ -1,7 +1,7 @@
 {
   "name": "runpod-graphql",
   "description": "A library to call Runpod GraphQL API",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "main": "runpod.ts",
   "author": {
     "name": "Ludovic Anterieur",
