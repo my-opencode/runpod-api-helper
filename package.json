@@ -1,5 +1,6 @@
 {
   "name": "runpod-api-helper",
+  "description": "A library to call Runpod GraphQL API",
   "version": "0.2.0",
   "author": {
     "name": "Ludovic Anterieur",
