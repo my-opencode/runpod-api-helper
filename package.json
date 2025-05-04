@@ -20,5 +20,9 @@
   "scripts": {
     "test": "npx tsx --test --experimental-test-module-mocks ./test/*.test.ts"
   },
-  "type": "module"
+  "type": "module",
+  "repository": {
+    "type": "github",
+    "url": "https://github.com/my-opencode/runpod-api-helper.git"
+  }
 }
