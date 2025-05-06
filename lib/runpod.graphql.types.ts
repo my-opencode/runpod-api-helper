@@ -479,9 +479,6 @@ export interface NetworkStorageEarning {
   dataCenterId: string;
   runpodEarnings: number;
 }
-export interface NetworkStorageEarningInput {
-  granularity: string;
-}
 export interface NetworkVolume {
   id: string;
   name: string;
@@ -543,65 +540,8 @@ export interface Pod {
   networkVolume: NetworkVolume;
   savingsPlans: SavingsPlan[];
 }
-export interface PodBidResumeInput {
-  podId: string;
-  gpuCount: number;
-  bidPerGpu: number;
-}
-export interface PodEditJobInput {
-  podId: string;
-  dockerArgs: string;
-  imageName: string;
-  env: EnvironmentVariableInput[],
-  port: number;
-  ports: string;
-  containerDiskInGb: number;
-  volumeInGb: number;
-  volumeMountPath: string;
-  containerRegistryAuthId: string;
-}
 export interface PodFilter {
   podId: string;
-}
-export interface PodFindAndDeployOnDemandInput {
-  aiApiId: string;
-  cloudType: CloudTypeEnum;
-  containerDiskInGb: number;
-  countryCode: CountryCode | null;
-  deployCost: number;
-  dockerArgs: string;
-  env: EnvironmentVariableInput[],
-  gpuCount: number;
-  gpuTypeId: GpuTypeId | null;
-  gpuTypeIdList: string[],
-  imageName: string;
-  minDisk: number;
-  minDownload: number;
-  minMemoryInGb: number;
-  minUpload: number;
-  minVcpuCount: number;
-  name: string;
-  networkVolumeId: string | null;
-  port: number;
-  ports: string;
-  startJupyter: boolean,
-  startSsh: boolean,
-  stopAfter: string;
-  supportPublicIp: boolean,
-  templateId: string | null;
-  terminateAfter: string;
-  volumeInGb: number;
-  volumeKey: string | null;
-  volumeMountPath: string;
-  dataCenterId: DataCenterId | null;
-  savingsPlan: SavingsPlanInput,
-  cudaVersion: string | null;
-  allowedCudaVersions: string[],
-  instanceIds: string[];
-  computeType: ComputeType;
-
-  globalNetwork: boolean;
-  containerRegistryAuthId: string | null;
 }
 export interface PodMachineInfo {
   id: string;
@@ -643,44 +583,6 @@ export interface PodRegistry {
   user: string;
   username: string;
 }
-export interface PodRentInterruptableInput {
-  bidPerGpu: number;
-  cloudType: CloudTypeEnum,
-  containerDiskInGb: number;
-  countryCode: CountryCode;
-  dockerArgs: string;
-  env: EnvironmentVariableInput[],
-  gpuCount: number;
-  gpuTypeId: string;
-  imageName: string;
-  minDisk: number;
-  minDownload: number;
-  minMemoryInGb: number;
-  minUpload: number;
-  minVcpuCount: number;
-  name: string;
-  networkVolumeId: string;
-  port: number;
-  ports: string;
-  startJupyter: boolean,
-  startSsh: boolean,
-  stopAfter: string;
-  supportPublicIp: boolean,
-  templateId: string;
-  terminateAfter: string;
-  volumeInGb: number;
-  volumeKey: string;
-  volumeMountPath: string;
-  dataCenterId: string;
-  cudaVersion: string;
-  allowedCudaVersions: string[]
-}
-export interface PodResumeInput {
-  podId: string;
-  gpuCount: number;
-  syncMachine: boolean,
-  computeType: ComputeType;
-}
 export interface PodRuntime {
   container: PodRuntimeContainer;
   gpus: PodRuntimeGpus[];
@@ -704,10 +606,7 @@ export interface PodRuntimePorts {
   type: string;
 }
 export type PodStatus = "CREATED" | "RUNNING" | "RESTARTING" | "EXITED" | "PAUSED" | "DEAD" | "TERMINATED";
-export interface PodStopInput {
-  podId: string;
-  incrementVersion: true
-}
+
 export interface PodTelemetry {
   state: string;
   time: string;
@@ -744,15 +643,9 @@ export interface PodTemplate {
   config: JSON;
   category: string;
 }
-export interface PodTerminateInput {
-  podId: string;
-}
+
 export type PodType = "INTERRUPTABLE" | "RESERVED" | "BID" | "BACKGROUND";
-export interface SaveRegistryAuthInput {
-  name: string;
-  username: string;
-  password: string;
-}
+
 export interface SavingsPlan {
   endTime: string;
   startTime: string;
@@ -765,10 +658,7 @@ export interface SavingsPlan {
   upfrontCost: number;
   planLength: string;
 }
-export interface SavingsPlanInput {
-  planLength: string;
-  upfrontCost: number;
-}
+
 export type ScalerType = "QUEUE_DELAY" | "REQUEST_COUNT";
 export type Scope = "CSR_ADMIN" | "CSR_IMPERSONATION" | "CSR_READ" | "CSR_WRITE" | "TEAM_ADMIN" | "TEAM_DEV" | "TEAM_BILLING" | "TEAM_BASIC" | "HOST";
 export interface Secret {
@@ -785,10 +675,7 @@ export interface Specifics {
   securePrice: number;
   slsPrice: number;
 }
-export interface SpecificsInput {
-  instanceId: string;
-  dataCenterId: string;
-}
+
 export interface SpendDetails {
   localStoragePerHour: number;
   networkStoragePerHour: number;
@@ -914,9 +801,6 @@ export interface UserBilling {
   storage: UserStorageBilling[],
   summary: UserSummaryBilling[]
 }
-export interface UserBillingInput {
-  granularity: BillingGranualarity
-}
 export interface UserCpuCloudBilling {
   cpuFlavorId: string;
   time: string;
@@ -964,9 +848,7 @@ export interface UserServerlessBilling {
   instanceId: string;
 }
 export type UserServerlessBillingGroupBy = "GPU_TYPE" | "ENDPOINT" | "INSTANCE_ID";
-export interface UserServerlessBillingInput {
-  groupBy: UserServerlessBillingGroupBy
-}
+
 export interface UserStorageBilling {
   time: string;
   amount: number;
@@ -992,20 +874,10 @@ export interface WebhookRequestStatus {
   time: number;
   responses: number;
 }
-export interface WebhookRequestsInput {
-  granularity: EndpointStatisticGranularity
-}
 export interface WorkerState {
   time: string;
   initialized: number;
   ready: number;
   running: number;
   throttled: number;
-}
-export interface WorkerStateInput {
-  granularity: EndpointStatisticGranularity
-}
-export interface backgroundPodTelemetryInput {
-  machineId: string;
-  gpuIndex: number;
 }
