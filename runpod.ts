@@ -13,10 +13,11 @@ import { stopPod } from "./lib/pods/stop";
 import { deletePod } from "./lib/pods/delete";
 import { getPod } from "./lib/pods/get";
 import { listPods } from "./lib/pods/list";
-import { listTemplates } from "./lib/info/templates";
+import { listTemplates } from "./lib/podTemplates/list";
 import { listCpuFlavors, listCpuNames, listSecureCpuTypes } from "./lib/info/cpu";
 import { listCountryCodes, listDataCenters } from "./lib/info/other";
 import { listAvailableGpus, listCommunityGpuTypes, listGpuTypes, listSecureGpuTypes } from "./lib/info/gpu";
+import { getPodTemplates } from "./lib/podTemplates/get";
 
 export class RunpodApi {
   apiKey: string;
@@ -38,7 +39,11 @@ export class RunpodApi {
     start(podId: string): Promise<StartPodResponse>;
     stop(podId: string): Promise<StopPodResponse>;
     delete(podId: string): Promise<TerminatePodResponse>;
-  }
+  };
+  templates: {
+    list(): Promise<ListPodTemplatesResponse>;
+    get():Promise<ListPodTemplatesResponse>;
+  };
   info: {
     cpu: {
       listFlavors(): Promise<ListCpuFlavorsResponse>;
@@ -50,9 +55,6 @@ export class RunpodApi {
       listCommunity(gpuTypeId: GpuTypeId, lowestPrice?: Partial<GpuLowestPriceInput>): Promise<ListGpuResponse>,
       listSecure(gpuTypeId: GpuTypeId, lowestPrice?: Partial<GpuLowestPriceInput>): Promise<ListGpuResponse>,
       listAvailable(dataCenterId: DataCenterId, minRam?: number): Promise<ListAvailableGpusResponse>,
-    };
-    templates: {
-      list(): Promise<ListPodTemplatesResponse>
     };
     dataCenters: {
       list(): Promise<ListDataCentersResponse>
@@ -84,6 +86,11 @@ export class RunpodApi {
       delete: async (podId) => deletePod(this.apiKey, podId),
     };
 
+    this.templates = {
+      get: async () => getPodTemplates(this.apiKey),
+      list: async () => listTemplates(this.apiKey),
+    };
+
     this.info = {
       cpu: {
         listFlavors: () => listCpuFlavors(),
@@ -95,9 +102,6 @@ export class RunpodApi {
         listCommunity: (gpuTypeId, lowestPrice) => listCommunityGpuTypes(gpuTypeId, lowestPrice),
         listSecure: (gpuTypeId, lowestPrice) => listSecureGpuTypes(gpuTypeId, lowestPrice),
         listAvailable: (dataCenterId, minRam?: number) => listAvailableGpus(dataCenterId, minRam),
-      },
-      templates: {
-        list: async () => listTemplates(this.apiKey),
       },
       dataCenters: {
         list: async () => listDataCenters(),

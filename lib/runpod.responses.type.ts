@@ -13,13 +13,13 @@ export interface DeleteEndpointResponse {
 }
 export interface ListEndpointsResponse {
   data: {
-    myself: Pick<User, "endpoints"|"serverlessDiscount">;
+    myself: Pick<User, "endpoints" | "serverlessDiscount">;
   }
 }
 export type PartialPod = Partial<Omit<Pod, "machine">> & { machine: Partial<PodMachineInfo> };
 export interface CreatePodResponse {
   data: {
-    podFindAndDeployOnDemand:  PartialPod
+    podFindAndDeployOnDemand: PartialPod
   }
 }
 export interface ResumePodResponse {
@@ -99,7 +99,7 @@ export interface GetInfoResponse { data: { myself: Partial<User> } }
 
 export interface ListPodTemplatesResponse {
   data: {
-    myself: Pick<User,"podTemplates">
+    myself: Pick<User, "podTemplates">
   }
 }
 export type AvailableGpu = GpuType & GpuAvailability;
