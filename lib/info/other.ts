@@ -1,7 +1,7 @@
 import { jsonToGraphQLQuery } from "json-to-graphql-query";
 import { JsonRequestBody } from "../runpod.request.type";
 import { DataCenter } from "../runpod.graphql.types";
-import { runRunpodGraphqlQuery } from "lib/queryRunner";
+import { runRunpodGraphqlQuery } from "../queryRunner";
 import { ListCountryCodesResponse, ListDataCentersResponse } from "../runpod.responses.type";
 
 export async function listDataCenters() {

@@ -1,22 +1,22 @@
-import { DataCenterId, Endpoint, GpuLowestPriceInput, GpuTypeId, PodFindAndDeployOnDemandInput, RunpodApiConstructorOptions, SpecificsInput } from "lib/runpod.graphql.types";
-import { runRunpodGraphqlQuery } from "lib/queryRunner";
-import { listEndpoints } from "lib/endpoints/list";
-import { createEndpoint } from "lib/endpoints/create";
-import { CreateEndpointInput, JsonRequestBody } from "lib/runpod.request.type";
-import { CreatePodResponse, DeployCpuPodResponse, GetPodResponse, ListEndpointsResponse, ListGpuResponse, ListPodResponse, ListCpuTypesResponse, StartPodResponse, StopPodResponse, TerminatePodResponse, ListDataCentersResponse, ListCountryCodesResponse, ListPodTemplatesResponse, ListAvailableGpusResponse, CreateEndpointResponse, ModifyEndpointResponse, DeleteEndpointResponse } from "lib/runpod.responses.type";
-import { modifyEndpoint } from "lib/endpoints/modify";
-import { deleteEndpoint } from "lib/endpoints/delete";
-import { createGpuPod } from "lib/pods/createGpu";
-import { createCpuPod } from "lib/pods/createCpu";
-import { startPod } from "lib/pods/start";
-import { stopPod } from "lib/pods/stop";
-import { deletePod } from "lib/pods/delete";
-import { getPod } from "lib/pods/get";
-import { listPods } from "lib/pods/list";
-import { listTemplates } from "lib/info/templates";
-import { listCpuFlavors, listCpuNames, listSecureCpuTypes } from "lib/info/cpu";
-import { listCountryCodes, listDataCenters } from "lib/info/other";
-import { listAvailableGpus, listCommunityGpuTypes, listGpuTypes, listSecureGpuTypes } from "lib/info/gpu";
+import { DataCenterId, Endpoint, GpuLowestPriceInput, GpuTypeId, RunpodApiConstructorOptions } from "./lib/runpod.graphql.types";
+import { runRunpodGraphqlQuery } from "./lib/queryRunner";
+import { listEndpoints } from "./lib/endpoints/list";
+import { createEndpoint } from "./lib/endpoints/create";
+import { CreateEndpointInput, JsonRequestBody, PodCreateCpuInput, PodFindAndDeployOnDemandInput, SpecificsInput } from "./lib/runpod.request.type";
+import { CreatePodResponse, DeployCpuPodResponse, GetPodResponse, ListEndpointsResponse, ListGpuResponse, ListPodResponse, ListCpuFlavorsResponse, StartPodResponse, StopPodResponse, TerminatePodResponse, ListDataCentersResponse, ListCountryCodesResponse, ListPodTemplatesResponse, ListAvailableGpusResponse, CreateEndpointResponse, ModifyEndpointResponse, DeleteEndpointResponse } from "./lib/runpod.responses.type";
+import { modifyEndpoint } from "./lib/endpoints/modify";
+import { deleteEndpoint } from "./lib/endpoints/delete";
+import { createGpuPod } from "./lib/pods/createGpu";
+import { createCpuPod } from "./lib/pods/createCpu";
+import { startPod } from "./lib/pods/start";
+import { stopPod } from "./lib/pods/stop";
+import { deletePod } from "./lib/pods/delete";
+import { getPod } from "./lib/pods/get";
+import { listPods } from "./lib/pods/list";
+import { listTemplates } from "./lib/info/templates";
+import { listCpuFlavors, listCpuNames, listSecureCpuTypes } from "./lib/info/cpu";
+import { listCountryCodes, listDataCenters } from "./lib/info/other";
+import { listAvailableGpus, listCommunityGpuTypes, listGpuTypes, listSecureGpuTypes } from "./lib/info/gpu";
 
 export class RunpodApi {
   apiKey: string;
@@ -33,7 +33,7 @@ export class RunpodApi {
   pods: {
     list(): Promise<ListPodResponse>;
     get(podId: string): Promise<GetPodResponse>;
-    createCpu(input: Partial<PodFindAndDeployOnDemandInput> & Partial<SpecificsInput>): Promise<DeployCpuPodResponse>;
+    createCpu(input: PodCreateCpuInput): Promise<DeployCpuPodResponse>;
     createGpu(input: Partial<PodFindAndDeployOnDemandInput>): Promise<CreatePodResponse>;
     start(podId: string): Promise<StartPodResponse>;
     stop(podId: string): Promise<StopPodResponse>;
@@ -41,9 +41,9 @@ export class RunpodApi {
   }
   info: {
     cpu: {
-      listFlavors(): Promise<ListCpuTypesResponse>;
-      listSecure(cpuFlavorId: string, specifics?: SpecificsInput): Promise<ListCpuTypesResponse>;
-      listNames(): Promise<ListCpuTypesResponse>;
+      listFlavors(): Promise<ListCpuFlavorsResponse>;
+      listSecure(cpuFlavorId: string, specifics?: SpecificsInput): Promise<ListCpuFlavorsResponse>;
+      listNames(): Promise<ListCpuFlavorsResponse>;
     };
     gpu: {
       list(): Promise<ListGpuResponse>,

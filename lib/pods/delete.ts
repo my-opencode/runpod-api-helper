@@ -1,5 +1,5 @@
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
-import { runRunpodGraphqlQuery } from "lib/queryRunner";
+import { runRunpodGraphqlQuery } from "../queryRunner";
 import { TerminatePodResponse } from "../runpod.responses.type";
 
 /* Dangerous to enable. Use at your own risk.  */

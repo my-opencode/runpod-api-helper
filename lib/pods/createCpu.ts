@@ -1,12 +1,12 @@
 import { EnumType, jsonToGraphQLQuery } from "json-to-graphql-query";
 import { CLOUD_TYPES_SUPPORTED_ON_CREATE_POD, CPU_FLAVOR_IDS } from "../runpod.constants";
-import { Pod, PodFindAndDeployOnDemandInput, PodMachineInfo, SpecificsInput } from "../runpod.graphql.types";
-import { JsonRequestBody } from "../runpod.request.type";
-import { runRunpodGraphqlQuery } from "lib/queryRunner";
+import { Pod, PodMachineInfo } from "../runpod.graphql.types";
+import { JsonRequestBody, PodCreateCpuInput, PodFindAndDeployOnDemandInput, SpecificsInput } from "../runpod.request.type";
+import { runRunpodGraphqlQuery } from "../queryRunner";
 import { DeployCpuPodResponse } from "../runpod.responses.type";
 import { applyDefaults } from "../utilities";
 
-export async function createCpuPod(apiKey: string, input: Partial<PodFindAndDeployOnDemandInput> & Partial<SpecificsInput>) {
+export async function createCpuPod(apiKey: string, input: PodCreateCpuInput) {
   if (!input.instanceId) {
     input.instanceId = CPU_FLAVOR_IDS.cpu3.compute + "-2-4";
   } else if (input.instanceId && input.instanceId.slice(0, 3) !== `cpu`) {

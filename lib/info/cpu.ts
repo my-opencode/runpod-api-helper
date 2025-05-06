@@ -1,8 +1,8 @@
 import { jsonToGraphQLQuery, VariableType } from "json-to-graphql-query";
-import { JsonRequestBody } from "../runpod.request.type";
-import { CpuFlavor, Specifics, SpecificsInput } from "../runpod.graphql.types";
-import { runRunpodGraphqlQuery } from "lib/queryRunner";
-import { ListCpuTypesResponse } from "../runpod.responses.type";
+import { JsonRequestBody, SpecificsInput } from "../runpod.request.type";
+import { CpuFlavor, Specifics } from "../runpod.graphql.types";
+import { runRunpodGraphqlQuery } from "../queryRunner";
+import { ListCpuFlavorsResponse } from "../runpod.responses.type";
 
 export async function listCpuFlavors() {
   const payload: JsonRequestBody = {
@@ -42,7 +42,7 @@ export async function listCpuFlavors() {
     "",
     payload,
     `list cpu flavors`
-  ) as Promise<ListCpuTypesResponse>;
+  ) as Promise<ListCpuFlavorsResponse>;
 }
 
 export async function listSecureCpuTypes(cpuFlavorId: string, specifics?: SpecificsInput) {
@@ -86,7 +86,7 @@ export async function listSecureCpuTypes(cpuFlavorId: string, specifics?: Specif
     "",
     payload,
     `list secure cpu names`
-  ) as Promise<ListCpuTypesResponse>;
+  ) as Promise<ListCpuFlavorsResponse>;
 }
 
 export async function listCpuNames() {
@@ -108,5 +108,5 @@ export async function listCpuNames() {
     "",
     payload,
     `list cpu names`
-  ) as Promise<ListCpuTypesResponse>;
+  ) as Promise<ListCpuFlavorsResponse>;
 }
