@@ -5,11 +5,7 @@ export interface CreateEndpointResponse {
     saveEndpoint: Partial<Endpoint>;
   }
 }
-export interface ModifyEndpointResponse {
-  data: {
-    saveEndpoint: Partial<Endpoint>;
-  }
-}
+export type ModifyEndpointResponse = CreateEndpointResponse;
 export interface DeleteEndpointResponse {
   data: {
     deleteEndpoint: null;
@@ -17,27 +13,21 @@ export interface DeleteEndpointResponse {
 }
 export interface ListEndpointsResponse {
   data: {
-    myself: {
-      endpoints: Partial<Endpoint>[],
-      serverlessDiscount: null | DiscountType;
-    }
+    myself: Pick<User, "endpoints"|"serverlessDiscount">;
   }
 }
+export type PartialPod = Partial<Omit<Pod, "machine">> & { machine: Partial<PodMachineInfo> };
 export interface CreatePodResponse {
   data: {
-    podFindAndDeployOnDemand: Partial<Omit<Pod, "machine">> & { machine: Partial<PodMachineInfo> };
+    podFindAndDeployOnDemand:  PartialPod
   }
 }
 export interface ResumePodResponse {
   data: {
-    podResume: Partial<Omit<Pod, "machine">> & { machine: Partial<PodMachineInfo> };
+    podResume: PartialPod
   }
 }
-export interface StartPodResponse {
-  data: {
-    podResume: Partial<Omit<Pod, "machine">> & { machine: Partial<PodMachineInfo> };
-  }
-}
+export type StartPodResponse = ResumePodResponse;
 export interface StopPodResponse {
   data: {
     podStop: Pick<Pod, "id" | "desiredStatus"> & Partial<Pod>;
@@ -75,13 +65,6 @@ export interface ListExtendedResponse {
 }
 export interface ListCpuFlavorsResponse {
   data: {
-    countryCodes: CountryCode[],
-    dataCenters: DataCenter[],
-    cpuFlavors: CpuFlavor[],
-  }
-}
-export interface ListCpuTypesResponse {
-  data: {
     cpuFlavors: CpuFlavor[]
   }
 }
@@ -116,9 +99,7 @@ export interface GetInfoResponse { data: { myself: Partial<User> } }
 
 export interface ListPodTemplatesResponse {
   data: {
-    myself: {
-      podTemplates: PodTemplate[];
-    }
+    myself: Pick<User,"podTemplates">
   }
 }
 export type AvailableGpu = GpuType & GpuAvailability;
